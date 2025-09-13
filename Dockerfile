@@ -28,6 +28,10 @@ COPY --from=builder /app/vendor /var/www/html/vendor
 # Copier tout le code Symfony
 COPY . /var/www/html
 
+# Copier explicitement le dossier des migrations pour s'assurer qu'il est bien inclus
+# Correction de la casse du chemin du dossier
+COPY woofwalks_back/src/migrations ./src/migrations
+
 # Créer les répertoires nécessaires et mettre les permissions
 RUN mkdir -p var/cache var/log var/sessions public \
     && chown -R www-data:www-data var/cache var/log var/sessions public
