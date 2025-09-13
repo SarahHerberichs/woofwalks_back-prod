@@ -1,0 +1,23 @@
+# Déclaration des routes 
+
+controllers:
+  resource:
+    path: ../src/Controller/
+    namespace: App\Controller
+  type: attribute
+
+auth: 
+  path: /api/login_check
+  methods: ["POST"]
+
+api_token_refresh: 
+  path: /api/token/refresh
+  controller: App\Controller\TokenRefreshController::refresh
+  methods: ["POST"]
+
+api_platform:
+  resource: '.'
+  type: api_platform
+  prefix: /api
+
+  

@@ -1,0 +1,42 @@
+FROM php:8.2-fpm
+
+RUN apt-get update && apt-get install -y \
+    libzip-dev unzip git curl default-mysql-client \
+    && docker-php-ext-install zip pdo pdo_mysql
+
+#COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
+
+# composer 
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" 
+RUN php -r "if (hash_file('sha384', 'composer-setup.php')=== file_get_contents('https://composer.github.io/installer.sig')) {echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+RUN php composer-setup.php 
+RUN php -r "unlink ('composer-setup.php');"
+RUN mv composer.phar /usr/local/bin/composer
+
+RUN curl -sS https://get.symfony.com/cli/installer | bash
+RUN mv /root/.symfony*/bin/symfony /usr/local/bin/symfony
+
+WORKDIR /var/www/html
+
+# Crée le dossier media avec les bons droits pour www-data
+RUN mkdir -p public/media && \
+    chown -R www-data:www-data public/media && \
+    chmod -R 775 public/media
+
+
+COPY composer.json composer.lock ./
+
+RUN mkdir -p var/cache var/log \
+    && chown -R www-data:www-data var/cache var/log
+
+RUN composer install --no-scripts --no-autoloader --prefer-dist
+
+COPY . .
+
+RUN composer dump-autoload --optimize
+
+EXPOSE 9000
+
+CMD ["php-fpm"]
+
+

@@ -1,0 +1,4 @@
+# config/routes/lexik_jwt_authentication.yaml
+# lexik_jwt_authentication:
+#   resource: "@LexikJWTAuthenticationBundle/Resources/config/routing.yaml"
+#   prefix: /api

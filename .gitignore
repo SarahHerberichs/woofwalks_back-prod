@@ -1,0 +1,25 @@
+###> symfony/framework-bundle ###
+woofwalks_back/.env
+woofwalks_back/.env.dev
+woofwalks_back/.env.local
+
+/.env.local
+/.env.local.php
+/.env.test
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+/var/cache/
+/var/log/
+###< symfony/framework-bundle ###
+
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###

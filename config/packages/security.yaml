@@ -1,0 +1,82 @@
+
+security:
+    #Algorithme auto de symfony pour le hashage
+    password_hashers:
+        App\Entity\User: 'auto'
+    #Classe User comme source de donnée des Utilisateurs (auth par mail)
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+    #Déf générale de comment sont sécurisée les diff parties de l'appli
+    firewalls:
+        #Fichiers qui restent accessible pendant le dev- sans etre authentifié
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        #Route de login : login_check en utilisant les paramétrages de app_user_provider
+        login:
+            pattern: ^/api/login_check$
+            stateless: true
+            #Provider utilisé pour charger user depuis la bdd via loadUserByIdentifier
+            provider: app_user_provider
+            user_checker: App\Security\UserChecker
+            json_login:
+                check_path: /api/login_check
+                username_path: email
+                password_path: password
+                
+                #Services fournis par Lexik implémenté par AuthenticationSuccessHandler
+                #ce success handler recupere User , crée le jwt, construit 
+                #la data contenant le token,crée et dispatch un AuthenticationSuccessEvent
+                #Parm dont se sert onAuthenticationSuccess ()
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                #Custom handler pour limiter nb de tentatives
+                failure_handler: App\Security\CustomAuthenticationFailureHandler
+
+        refresh_token:
+            pattern: ^/api/token/refresh$
+            stateless: true
+            #chemin pour gérer la vérification des token
+            custom_authenticators:
+                - App\Security\RefreshTokenAuthenticator 
+            provider: app_user_provider
+        # Toutes les routes api sécurisées par custom_authenticatos (CookieTokenAuthenticator)
+        api:
+            pattern: ^/api
+            stateless: true
+            custom_authenticators:
+              - App\Security\CookieTokenAuthenticator
+            provider: app_user_provider
+            user_checker: App\Security\UserChecker
+            logout:
+                path: /api/logout
+                invalidate_session: true
+                delete_cookies: ['BEARER', 'REFRESH_TOKEN']       
+        api_doc:
+            pattern: ^/api/(docs|contexts)
+            security: false
+    # Déclaration des path et droits associés
+    access_control:
+        - { path: ^/api/login_check/, roles: PUBLIC_ACCESS }
+        - { path: ^/api/confirm-email/, roles: PUBLIC_ACCESS }
+        - { path: ^/api/newaccount/, roles: PUBLIC_ACCESS }
+        - { path: ^/api/users$, methods: [POST], roles: PUBLIC_ACCESS }
+        - { path: ^/api/me, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/token/refresh, roles: PUBLIC_ACCESS }
+        - { path: ^/api/logout, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/walks/?$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/parks/?$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/(docs|contexts), roles: PUBLIC_ACCESS }
+        - { path: ^/api/, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/, roles: PUBLIC_ACCESS }
+
+when@test:
+    security:
+        password_hashers:
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

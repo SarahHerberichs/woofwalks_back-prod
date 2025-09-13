@@ -1,0 +1,10 @@
+framework:
+    rate_limiter:
+        global_limiter:
+            policy: 'fixed_window'
+            limit: 50
+            interval: '1 minute'
+        login:
+          policy: 'fixed_window'
+          limit: 5       # nb max d'essais
+          interval: '1 minute'

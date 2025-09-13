@@ -1,0 +1,34 @@
+nelmio_cors:
+  defaults:
+    allow_origin: ["https://localhost:3000"]
+    allow_methods: ["GET", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]
+    allow_headers: ['Content-Type', 'Authorization']
+    expose_headers: ["Link"]
+    max_age: 3600
+    allow_credentials: true
+  paths:
+    "^/api/":
+      allow_origin: ["https://localhost:3000"]
+      allow_methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"]
+      allow_headers: ["Content-Type", "Authorization"]
+      max_age: 3600
+      allow_credentials: true
+
+
+# testprod
+
+# nelmio_cors:
+#   defaults:
+#     allow_origin: ["https://localhost:8443"]
+#     allow_methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"]
+#     allow_headers: ["Content-Type", "Authorization"]
+#     expose_headers: ["Link"]
+#     max_age: 3600
+#     allow_credentials: true
+#   paths:
+#     "^/api/":
+#       allow_origin: ["https://localhost:8443"]
+#       allow_methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"]
+#       allow_headers: ["Content-Type", "Authorization"]
+#       max_age: 3600
+#       allow_credentials: true
