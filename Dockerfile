@@ -30,7 +30,7 @@ COPY . /var/www/html
 
 # Copier explicitement le dossier des migrations pour s'assurer qu'il est bien inclus
 # Correction du chemin en le rendant relatif au contexte de build
-COPY src/migrations ./src/migrations
+COPY migrations ./migrations
 
 # Créer les répertoires nécessaires et mettre les permissions
 RUN mkdir -p var/cache var/log var/sessions public \
