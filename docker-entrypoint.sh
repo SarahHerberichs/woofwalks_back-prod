@@ -13,7 +13,7 @@ echo "Base de données prête. Démarrage des migrations..."
 
 # Débogage : Lister le contenu du dossier des migrations
 echo "--- Contenu du dossier de migrations ---"
-ls -la /var/www/html/src/Migrations
+ls -la /var/www/html/src/migrations
 
 # Débogage : Vérifier le statut des migrations avant l'exécution
 echo "--- Statut des migrations avant l'exécution ---"
