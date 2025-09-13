@@ -1,4 +1,4 @@
-.git
-Dockerfile.php-fpm.dev
-tests/
-node_modules/
+/vendor
+/var
+/.env*
+/config/secrets/prod/prod.decrypt.private.php
