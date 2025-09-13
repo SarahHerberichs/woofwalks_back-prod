@@ -94,11 +94,8 @@
   },
   "extra": {
     "symfony": {
-        "allow-contrib": false,
-        "require": "6.4.*",
-        "docker": false,
-        "dotenv": true,
-        "web-server-bundle": true
+      "allow-contrib": false,
+      "require": "6.4.*"
     }
   }
 }
