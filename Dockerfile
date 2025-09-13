@@ -37,7 +37,12 @@ ENV APP_ENV=prod
 ENV APP_DEBUG=0
 ENV DATABASE_URL="mysql://root:IlcNzJQOqGRrtpEqpgzVAtCGfTvlagDM@mysql.railway.internal:3306/railway"
 
-# Copier l’entrypoint
+# Copier l’entrypoint et le rendre exécutable
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+# Définir le point d'entrée pour l'image
+ENTRYPOINT ["docker-entrypoint.sh"]
+
+# Démarrer le serveur PHP-FPM
+CMD ["php-fpm"]
