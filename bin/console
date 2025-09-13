@@ -11,13 +11,10 @@ if (!is_dir(dirname(__DIR__).'/vendor')) {
 if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
     throw new LogicException('Symfony Runtime is missing. Try running "composer require symfony/runtime".');
 }
-if (isset($_SERVER['APP_ENV']) || isset($_ENV['APP_ENV'])) {
-    // Environnement défini => pas besoin de charger .env
-} else {
-    (new Dotenv())->loadEnv(dirname(__DIR__).'/.env');
-}
 
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
+// Ajout pour test railway en prod -- attente de .env problematique
+require dirname(__DIR__).'/config/bootstrap.php';
 
 return function (array $context) {
     $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
