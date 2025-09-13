@@ -29,8 +29,8 @@ COPY --from=builder /app/vendor /var/www/html/vendor
 COPY . /var/www/html
 
 # Copier explicitement le dossier des migrations pour s'assurer qu'il est bien inclus
-# Correction de la casse du chemin du dossier
-COPY woofwalks_back/src/migrations ./src/migrations
+# Correction du chemin en le rendant relatif au contexte de build
+COPY src/migrations ./src/migrations
 
 # Créer les répertoires nécessaires et mettre les permissions
 RUN mkdir -p var/cache var/log var/sessions public \
