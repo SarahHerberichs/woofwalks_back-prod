@@ -30,7 +30,7 @@ COPY . /var/www/html
 
 # Copier explicitement le dossier des migrations pour s'assurer qu'il est bien inclus
 # Correction du chemin en le rendant relatif au contexte de build
-COPY migrations /var/www/html/src/Migrations
+COPY migrations /var/www/html/migrations
 
 
 # Créer les répertoires nécessaires et mettre les permissions
