@@ -7,8 +7,8 @@ WORKDIR /app
 # Copier les fichiers Composer
 COPY composer.json composer.lock ./
 
-# Exécuter l'installation des dépendances de production
-RUN composer install --no-dev --no-interaction --optimize-autoloader
+# Exécuter l'installation des dépendances de production sans lancer les scripts
+RUN composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
 
 # Étape 2: Construire l'image finale de production
 FROM php:8.1-fpm-alpine
