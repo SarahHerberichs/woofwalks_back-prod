@@ -1,24 +1,23 @@
 #!/bin/sh
 set -e
 
+# Définir l'environnement prod
+export APP_ENV=prod
+export APP_DEBUG=0
+
+# Vérifier que la base de données est prête
 echo "--- Attente de la base de données ---"
 until nc -z -v -w30 mysql.railway.internal 3306
 do
-  echo "En attente de MySQL..."
-  sleep 2
+  echo "En attente de la connexion à la base de données..."
+  sleep 1
 done
 echo "Base de données prête."
 
-# Forcer l'environnement prod directement via variables
-export APP_ENV=prod
-export APP_DEBUG=0
-export DATABASE_URL="mysql://root:IlcNzJQOqGRrtpEqpgzVAtCGfTvlagDM@mysql.railway.internal:3306/railway"
-
-echo "--- Statut des migrations ---"
-php bin/console doctrine:migrations:status --env=prod || true
-
+# Lancer les migrations Doctrine
 echo "--- Exécution des migrations ---"
-php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+php bin/console doctrine:migrations:migrate --no-interaction
 
-echo "--- Lancement de PHP-FPM ---"
-exec php-fpm
+# Démarrer PHP-FPM
+echo "--- Démarrage de PHP-FPM ---"
+exec "$@"
