@@ -10,18 +10,18 @@ done
 
 echo "Base de données prête. Démarrage des migrations..."
 
-# Debug
+# Debug : contenu du dossier migrations
 echo "--- Contenu du dossier migrations ---"
 ls -la /var/www/html/migrations
 
 echo "--- Statut des migrations avant ---"
-APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:status
+APP_ENV=prod APP_DEBUG=0 DATABASE_URL="$DATABASE_URL" php bin/console doctrine:migrations:status
 
 echo "--- Exécution des migrations ---"
-APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --no-interaction
+APP_ENV=prod APP_DEBUG=0 DATABASE_URL="$DATABASE_URL" php bin/console doctrine:migrations:migrate --no-interaction
 
 echo "--- Statut des migrations après ---"
-APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:status
+APP_ENV=prod APP_DEBUG=0 DATABASE_URL="$DATABASE_URL" php bin/console doctrine:migrations:status
 
 echo "--- Lancement PHP-FPM ---"
 exec "$@"
