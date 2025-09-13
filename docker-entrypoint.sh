@@ -1,13 +1,17 @@
 #!/bin/sh
+set -e
 
-# Attendre que la DB soit disponible
-until php bin/console doctrine:query:sql "SELECT 1" > /dev/null 2>&1; do
-  echo "Waiting for database..."
-  sleep 2
+# Wait for the database service to be available by checking for port 3306 to be open
+until nc -z -v -w30 mysql.railway.internal 3306
+do
+  echo "Waiting for database connection..."
+  sleep 1
 done
 
-# Exécuter les migrations
+echo "Database is ready. Starting migrations..."
+
+# Run database migrations
 php bin/console doctrine:migrations:migrate --no-interaction
 
-# Démarrer PHP-FPM
-php-fpm
+# Execute the original command (php-fpm)
+exec "$@"
