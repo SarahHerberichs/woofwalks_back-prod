@@ -1,7 +1,6 @@
 #!/bin/sh
 set -e
 
-# Attendre que la base de données soit disponible en vérifiant que le port 3306 est ouvert
 echo "--- Attente de la base de données ---"
 until nc -z -v -w30 mysql.railway.internal 3306
 do
@@ -11,21 +10,18 @@ done
 
 echo "Base de données prête. Démarrage des migrations..."
 
-# Pas besoin d'export si tu forces --env=prod, mais on peut les garder
-export APP_ENV=prod
-export APP_DEBUG=0
-
-# Débogage : Lister le contenu du dossier des migrations
-echo "--- Contenu du dossier de migrations ---"
+# Debug
+echo "--- Contenu du dossier migrations ---"
 ls -la /var/www/html/migrations
 
-# Débogage : Vérifier le statut des migrations avant l'exécution
-echo "--- Statut des migrations avant l'exécution ---"
-php bin/console doctrine:migrations:status --env=prod
+echo "--- Statut des migrations avant ---"
+APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:status
 
-# Exécuter les migrations
 echo "--- Exécution des migrations ---"
-php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:migrate --no-interaction
 
-# Débogage : Vérifier le statut des migrations après l'exécution
-echo "--- Statut
+echo "--- Statut des migrations après ---"
+APP_ENV=prod APP_DEBUG=0 php bin/console doctrine:migrations:status
+
+echo "--- Lancement PHP-FPM ---"
+exec "$@"
