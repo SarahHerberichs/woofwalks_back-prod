@@ -40,7 +40,8 @@ COPY . /var/www/html
 
 # Mettre à jour les permissions des répertoires
 RUN chown -R www-data:www-data var/cache var/log var/sessions public
-
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
 # Exposer le port du serveur
 EXPOSE 9000
 
