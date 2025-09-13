@@ -19,7 +19,7 @@ FROM php:8.2-fpm-alpine
 WORKDIR /var/www/html
 
 # Installer les dépendances système et extensions PHP
-RUN apk add --no-cache bash git mysql-client shadow \
+RUN apk add --no-cache bash git shadow mysql-client \
     && docker-php-ext-install pdo pdo_mysql
 
 # Copier vendor depuis le build stage
