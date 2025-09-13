@@ -39,4 +39,5 @@ ENV DATABASE_URL="mysql://root:IlcNzJQOqGRrtpEqpgzVAtCGfTvlagDM@mysql.railway.in
 
 # Copier l’entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-e
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
