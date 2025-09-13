@@ -9,9 +9,10 @@ do
 done
 echo "Base de données prête."
 
-# Forcer l'environnement prod
+# Forcer l'environnement prod directement via variables
 export APP_ENV=prod
 export APP_DEBUG=0
+export DATABASE_URL="mysql://root:IlcNzJQOqGRrtpEqpgzVAtCGfTvlagDM@mysql.railway.internal:3306/railway"
 
 echo "--- Statut des migrations ---"
 php bin/console doctrine:migrations:status --env=prod || true
