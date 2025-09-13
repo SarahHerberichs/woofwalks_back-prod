@@ -11,22 +11,21 @@ done
 
 echo "Base de données prête. Démarrage des migrations..."
 
+# Pas besoin d'export si tu forces --env=prod, mais on peut les garder
+export APP_ENV=prod
+export APP_DEBUG=0
+
 # Débogage : Lister le contenu du dossier des migrations
 echo "--- Contenu du dossier de migrations ---"
 ls -la /var/www/html/migrations
 
 # Débogage : Vérifier le statut des migrations avant l'exécution
 echo "--- Statut des migrations avant l'exécution ---"
-php bin/console doctrine:migrations:status
+php bin/console doctrine:migrations:status --env=prod
 
 # Exécuter les migrations
 echo "--- Exécution des migrations ---"
-php bin/console doctrine:migrations:migrate --no-interaction
+php bin/console doctrine:migrations:migrate --no-interaction --env=prod
 
 # Débogage : Vérifier le statut des migrations après l'exécution
-echo "--- Statut des migrations après l'exécution ---"
-php bin/console doctrine:migrations:status
-
-# Démarrer PHP-FPM
-echo "--- Démarrage de PHP-FPM ---"
-exec "$@"
+echo "--- Statut
