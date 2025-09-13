@@ -14,7 +14,10 @@ if (!is_file(dirname(__DIR__).'/vendor/autoload_runtime.php')) {
 
 require_once dirname(__DIR__).'/vendor/autoload_runtime.php';
 // Ajout pour test railway en prod -- attente de .env problematique
-require dirname(__DIR__).'/config/bootstrap.php';
+
+if ($_ENV['APP_ENV'] ?? 'prod' === 'dev') {
+    require dirname(__DIR__).'/config/bootstrap.php';
+}
 
 return function (array $context) {
     $kernel = new Kernel($context['APP_ENV'], (bool) $context['APP_DEBUG']);
