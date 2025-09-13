@@ -4,24 +4,20 @@ set -e
 echo "--- Attente de la base de données ---"
 until nc -z -v -w30 mysql.railway.internal 3306
 do
-  echo "En attente de la connexion à la base de données..."
-  sleep 1
+  echo "En attente de MySQL..."
+  sleep 2
 done
+echo "Base de données prête."
 
-echo "Base de données prête. Démarrage des migrations..."
+# Forcer l'environnement prod
+export APP_ENV=prod
+export APP_DEBUG=0
 
-# Debug : contenu du dossier migrations
-echo "--- Contenu du dossier migrations ---"
-ls -la /var/www/html/migrations
-
-echo "--- Statut des migrations avant ---"
-APP_ENV=prod APP_DEBUG=0 DATABASE_URL="$DATABASE_URL" php bin/console doctrine:migrations:status
+echo "--- Statut des migrations ---"
+php bin/console doctrine:migrations:status --env=prod || true
 
 echo "--- Exécution des migrations ---"
-APP_ENV=prod APP_DEBUG=0 DATABASE_URL="$DATABASE_URL" php bin/console doctrine:migrations:migrate --no-interaction
+php bin/console doctrine:migrations:migrate --no-interaction --env=prod
 
-echo "--- Statut des migrations après ---"
-APP_ENV=prod APP_DEBUG=0 DATABASE_URL="$DATABASE_URL" php bin/console doctrine:migrations:status
-
-echo "--- Lancement PHP-FPM ---"
-exec "$@"
+echo "--- Lancement de PHP-FPM ---"
+exec php-fpm
