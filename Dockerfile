@@ -1,45 +1,48 @@
+# Étape 1: Construire l'application (build stage)
+FROM composer:2.4 as composer_builder
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier les fichiers Composer
+COPY composer.json composer.lock ./
+
+# Exécuter l'installation des dépendances de production sans lancer les scripts
+RUN composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
+
+# Étape 2: Construire l'image finale de production
 FROM php:8.2-fpm-alpine
 
-# Install system dependencies
-RUN apk add --no-cache \
-    git \
-    zlib-dev \
-    libzip-dev \
-    oniguruma-dev \
-    $PHPIZE_DEPS
-
-# Install PHP extensions
-RUN docker-php-ext-install \
-    pdo_mysql \
-    zip \
-    opcache
-
-# Enable opcache for production optimization (optional for dev, but good practice)
-RUN docker-php-ext-enable opcache
-
-# Install Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Set working directory
+# Définir le répertoire de travail
 WORKDIR /var/www/html
 
-# Wait for the database service to be available. This is a crucial step to avoid connection errors on startup.
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-COPY woofwalks_back/docker/wait-for-it.sh /usr/local/bin/wait-for-it.sh
-RUN chmod +x /usr/local/bin/wait-for-it.sh
+# Installer les dépendances système et les extensions PHP requises
+RUN apk add --no-cache \
+    git \
+    mysql-client \
+    shadow \
+    bash \
+    # ... autres dépendances nécessaires pour la prod
+    && docker-php-ext-install pdo pdo_mysql \
+    && rm -rf /tmp/pear
 
-# Install PHP dependencies from composer.lock
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-autoloader
+# Créer l'utilisateur et le groupe www-data
+RUN usermod -u 1000 www-data
 
-# Copy the rest of the application code
-COPY . .
+# Créer les répertoires nécessaires pour Symfony
+RUN mkdir -p var/cache var/log var/sessions
 
-# Clear the cache and install application dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Copier les dépendances installées par Composer depuis le "build stage"
+COPY --from=composer_builder /app/vendor /var/www/html/vendor
 
-# Run database migrations
-CMD ["sh", "-c", "wait-for-it.sh db:3306 --timeout=60 --strict -- php bin/console doctrine:migrations:migrate --no-interaction"]
+# Copier le reste du code de l'application
+COPY . /var/www/html
 
-# Expose the port for php-fpm
+# Mettre à jour les permissions des répertoires
+RUN chown -R www-data:www-data var/cache var/log var/sessions public
+
+# Exposer le port du serveur
 EXPOSE 9000
+
+# Démarrer le serveur PHP-FPM
+CMD ["php-fpm"]
