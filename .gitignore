@@ -1,8 +1,7 @@
 ###> symfony/framework-bundle ###
-# woofwalks_back/.env
+woofwalks_back/.env
 woofwalks_back/.env.dev
 woofwalks_back/.env.local
-woofwalks_back/.env.prod
 
 /.env.local
 /.env.local.php
