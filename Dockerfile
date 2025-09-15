@@ -1,5 +1,5 @@
 # =========================
-# Étape 1 : Installer les dépendances avec Composer
+# Étape 1 : installer les dépendances avec Composer
 # =========================
 FROM composer:2.4 AS builder
 
@@ -8,44 +8,36 @@ COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
 
 # =========================
-# Étape 2 : Image finale pour prod
+# Étape 2 : image finale avec PHP-FPM + Nginx
 # =========================
 FROM php:8.2-fpm-alpine
 
 WORKDIR /var/www/html
 
-# Installer les dépendances système et extensions PHP
-RUN apk add --no-cache bash git shadow mysql-client icu-dev \
+# Installer dépendances système et extensions PHP + Nginx
+RUN apk add --no-cache bash git shadow icu-dev nginx \
     && docker-php-ext-install pdo pdo_mysql intl
 
-RUN wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz \
-    && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz \
-    && rm dockerize-linux-amd64-v0.6.1.tar.gz
-
-# Copier vendor depuis le build stage
+# Copier vendor et code
 COPY --from=builder /app/vendor /var/www/html/vendor
-
-# Copier le code et les fichiers de configuration
 COPY . /var/www/html
-COPY php-fpm-prod.conf /usr/local/etc/php-fpm.conf
-
-# Copier le fichier php.ini
 COPY php.ini /usr/local/etc/php/
-#
-# Copier explicitement le dossier des migrations
+
+# Copier migrations et .env
 COPY migrations /var/www/html/migrations
 COPY .env.railway /var/www/html/.env
 
-# Créer les répertoires nécessaires et mettre les permissions
+# Permissions
 RUN mkdir -p var/cache var/log var/sessions public \
     && chown -R www-data:www-data var
 
-# Copier l’entrypoint et le rendre exécutable
+# Config Nginx
+COPY nginx-prod.conf /etc/nginx/conf.d/default.conf
+
+# Entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Définir le point d'entrée pour l'image
-ENTRYPOINT ["docker-entrypoint.sh"]
+EXPOSE 80
 
-CMD ["php-fpm", "-F"]
-
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
