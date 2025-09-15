@@ -14,10 +14,13 @@ FROM php:8.2-fpm-alpine
 
 WORKDIR /var/www/html
 
-# Installer dépendances système et extensions PHP + Nginx
-
-RUN apk add --no-cache bash git shadow icu-dev nginx dockerize \
+RUN apk add --no-cache bash git shadow icu-dev nginx \
     && docker-php-ext-install pdo pdo_mysql intl
+
+# Télécharger et installer Dockerize manuellement
+RUN wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-alpine-linux-amd64-v0.6.1.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-v0.6.1.tar.gz \
+    && rm dockerize-alpine-linux-amd64-v0.6.1.tar.gz
 # Copier vendor et code
 COPY --from=builder /app/vendor /var/www/html/vendor
 COPY . /var/www/html
