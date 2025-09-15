@@ -16,7 +16,8 @@ php bin/console cache:warmup
 touch /var/www/html/var/log/php_errors.log
 
 # Start the PHP-FPM process in the background
-php-fpm -F -d "listen=0.0.0.0:$PORT" &
+exec "$@"
+
 
 # Tail the log file to see all errors
 tail -f /var/www/html/var/log/php_errors.log

@@ -27,6 +27,7 @@ COPY --from=builder /app/vendor /var/www/html/vendor
 
 # Copier le code et les fichiers de configuration
 COPY . /var/www/html
+COPY php-fpm-prod.conf /usr/local/etc/php-fpm.conf
 
 # Copier le fichier php.ini
 COPY php.ini /usr/local/etc/php/
@@ -46,4 +47,4 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Définir le point d'entrée pour l'image
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-CMD ["php-fpm", "-F", "-d", "listen=0.0.0.0:$PORT"]
+CMD ["php-fpm", "-F", "-y", "/usr/local/etc/php-fpm.conf", "-R"]
