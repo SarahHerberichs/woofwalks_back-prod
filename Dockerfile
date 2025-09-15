@@ -15,9 +15,9 @@ FROM php:8.2-fpm-alpine
 WORKDIR /var/www/html
 
 # Installer dépendances système et extensions PHP + Nginx
-RUN apk add --no-cache bash git shadow icu-dev nginx \
-    && docker-php-ext-install pdo pdo_mysql intl
 
+RUN apk add --no-cache bash git shadow icu-dev nginx dockerize \
+    && docker-php-ext-install pdo pdo_mysql intl
 # Copier vendor et code
 COPY --from=builder /app/vendor /var/www/html/vendor
 COPY . /var/www/html
