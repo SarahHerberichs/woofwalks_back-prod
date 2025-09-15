@@ -1,9 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
-# Préparer cache et logs
-mkdir -p var/cache var/log var/sessions
-chown -R www-data:www-data var
+# Remplacer le port 9000 par la variable d'environnement PORT de Railway
+sed -i "s/9000/$PORT/" /usr/local/etc/php-fpm.d/www.conf
 
-# Exécuter la commande passée au container (php-fpm)
+# Exécuter la commande principale
 exec "$@"
