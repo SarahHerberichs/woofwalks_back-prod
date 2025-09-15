@@ -8,14 +8,25 @@ do
   sleep 1
 done
 
-echo "Base de données prête. Démarrage des migrations..."
+echo "Base de données prête."
 
-# Variables d'environnement prod
+# Forcer l'environnement prod
 export APP_ENV=prod
 export APP_DEBUG=0
 
-# Exécuter les migrations sans chercher de .env
-# php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+# Corriger les permissions sur var/cache et var/log
+chown -R www-data:www-data var/cache var/log || true
+chmod -R 775 var/cache var/log || true
 
-# Lancer le serveur ou le processus principal
-php-fpm
+# Vider et régénérer le cache prod
+php bin/console cache:clear --env=prod
+php bin/console cache:warmup --env=prod
+
+# Ajouter les versions de migrations déjà exécutées (optionnel si ta BDD est déjà à jour)
+php bin/console doctrine:migrations:sync-metadata-storage --no-interaction
+
+# Exécuter les migrations en prod
+php bin/console doctrine:migrations:migrate --no-interaction --env=prod || true
+
+# Lancer PHP-FPM
+exec php-fpm
