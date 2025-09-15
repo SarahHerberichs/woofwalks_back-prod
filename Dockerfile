@@ -17,11 +17,11 @@ WORKDIR /var/www/html
 # Installer les dépendances système et extensions PHP
 RUN apk add --no-cache bash git shadow mysql-client icu-dev \
     && docker-php-ext-install pdo pdo_mysql intl
-# ... after the line RUN apk add ...
+
 RUN wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz \
     && rm dockerize-linux-amd64-v0.6.1.tar.gz
-# ... rest of your Dockerfile
+
 # Copier vendor depuis le build stage
 COPY --from=builder /app/vendor /var/www/html/vendor
 
