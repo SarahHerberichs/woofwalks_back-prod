@@ -19,8 +19,8 @@ FROM php:8.2-fpm-alpine
 WORKDIR /var/www/html
 
 # Installer les dépendances système et extensions PHP
-RUN apk add --no-cache bash git shadow mysql-client \
-    && docker-php-ext-install pdo pdo_mysql
+RUN apk add --no-cache bash git shadow mysql-client icu-dev \
+    && docker-php-ext-install pdo pdo_mysql intl
 
 # Copier vendor depuis le build stage
 COPY --from=builder /app/vendor /var/www/html/vendor
@@ -28,14 +28,13 @@ COPY --from=builder /app/vendor /var/www/html/vendor
 # Copier tout le code Symfony
 COPY . /var/www/html
 
-# Copier explicitement le dossier des migrations pour s'assurer qu'il est bien inclus
-# Correction du chemin en le rendant relatif au contexte de build
+# Copier explicitement le dossier des migrations
 COPY migrations /var/www/html/migrations
 COPY .env.railway /var/www/html/.env
 
 # Créer les répertoires nécessaires et mettre les permissions
 RUN mkdir -p var/cache var/log var/sessions public \
-    && chown -R www-data:www-data var/cache var/log var/sessions public
+    && chown -R www-data:www-data var
 
 # Variables d'environnement
 ENV APP_ENV=prod
@@ -49,6 +48,5 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Définir le point d'entrée pour l'image
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-# Démarrer le serveur PHP-FPM
+# Démarrer PHP-FPM
 CMD ["php-fpm"]
-
