@@ -13,6 +13,9 @@ if grep -q "listen = 9000" "/usr/local/etc/php-fpm.d/www.conf"; then
 else
   echo "Listen port 9000 not found in www.conf. Using default listener." >> /proc/1/fd/1
 fi
+echo "=== Vérification des permissions ==="
+ls -la /var/www/html/var
+echo "==================================="
 
 echo "www.conf content after change:" >> /proc/1/fd/1
 cat /usr/local/etc/php-fpm.d/www.conf >> /proc/1/fd/1
