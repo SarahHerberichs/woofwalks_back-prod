@@ -15,7 +15,7 @@ export APP_ENV=prod
 export APP_DEBUG=0
 
 # Exécuter les migrations sans chercher de .env
-php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+# php bin/console doctrine:migrations:migrate --no-interaction --env=prod
 
 # Lancer le serveur ou le processus principal
 php-fpm
