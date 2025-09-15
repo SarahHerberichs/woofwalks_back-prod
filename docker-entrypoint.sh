@@ -2,7 +2,7 @@
 set -e
 
 # Wait for the database to be ready
-/usr/local/bin/dockerize -wait tcp://mysql:3306 -timeout 20s
+/usr/local/bin/dockerize -wait tcp://MySQL:3306 -timeout 20s
 
 echo "Running migrations..."
 php bin/console doctrine:migrations:migrate --no-interaction
