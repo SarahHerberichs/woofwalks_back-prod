@@ -1,19 +1,13 @@
 #!/bin/bash
 set -e
 
-# Wait for the database to be ready
-/usr/local/bin/dockerize -wait tcp://MySQL:3306 -timeout 20s
+# ... (les migrations et la mise en cache) ...
 
-echo "Running migrations..."
-php bin/console doctrine:migrations:migrate --no-interaction
-echo "Migrations done."
-
-# Clear and warm up the cache
-php bin/console cache:clear
-php bin/console cache:warmup
-
-# Ensure the log file exists
+# Créer le fichier de log pour éviter que tail ne plante
 touch /var/www/html/var/log/php_errors.log
 
-# Start the PHP-FPM process and redirect output
-exec php-fpm -F -d "listen=0.0.0.0:$PORT"
+# Démarrer le processus PHP-FPM en arrière-plan
+php-fpm -F -d "listen=0.0.0.0:$PORT" &
+
+# Afficher les logs en continu pour le débogage
+tail -f /var/www/html/var/log/php_errors.log
