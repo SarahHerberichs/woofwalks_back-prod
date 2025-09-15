@@ -50,4 +50,4 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 # Démarrer le serveur PHP-FPM
-CMD ["php-fpm"]
+CMD ["php", "-S", "0.0.0.0:9000", "-t", "public"]
