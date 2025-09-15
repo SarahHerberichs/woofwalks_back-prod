@@ -4,11 +4,7 @@
 FROM composer:2.4 AS builder
 
 WORKDIR /app
-
-# Copier les fichiers Composer
 COPY composer.json composer.lock ./
-
-# Installer les dépendances de prod sans dev
 RUN composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
 
 # =========================
@@ -36,22 +32,9 @@ COPY .env.railway /var/www/html/.env
 RUN mkdir -p var/cache var/log var/sessions public \
     && chown -R www-data:www-data var
 
-# Variables d'environnement
-ENV APP_ENV=prod
-ENV APP_DEBUG=0
-ENV DATABASE_URL="mysql://root:IlcNzJQOqGRrtpEqpgzVAtCGfTvlagDM@mysql.railway.internal:3306/railway"
-
 # Copier l’entrypoint et le rendre exécutable
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-# Définir le point d'entrée pour l'image
-ENTRYPOINT ["docker-entrypoint.sh"]
-
-# Démarrer PHP-FPM
-# ... votre Dockerfile ...
-# Définir le point d'entrée pour l'image
-# ... votre Dockerfile ...
 
 # Définir le point d'entrée pour l'image
 ENTRYPOINT ["docker-entrypoint.sh"]
