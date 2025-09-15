@@ -14,13 +14,10 @@ FROM php:8.2-fpm-alpine
 
 WORKDIR /var/www/html
 
-RUN apk add --no-cache bash git shadow icu-dev nginx \
+# Installer dépendances système et extensions PHP + Nginx
+RUN apk add --no-cache bash git shadow icu-dev nginx gettext \
     && docker-php-ext-install pdo pdo_mysql intl
 
-# Télécharger et installer Dockerize manuellement
-RUN wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-alpine-linux-amd64-v0.6.1.tar.gz \
-    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-v0.6.1.tar.gz \
-    && rm dockerize-alpine-linux-amd64-v0.6.1.tar.gz
 # Copier vendor et code
 COPY --from=builder /app/vendor /var/www/html/vendor
 COPY . /var/www/html
@@ -34,13 +31,14 @@ COPY .env.railway /var/www/html/.env
 RUN mkdir -p var/cache var/log var/sessions public \
     && chown -R www-data:www-data var
 
-COPY nginx.conf /etc/nginx/nginx.conf
+# Nginx config will be generated from a template to bind on $PORT at runtime
+COPY nginx.conf.template /etc/nginx/nginx.conf.template
 
 # Entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+# Exposed port is managed by Railway; Nginx will bind to $PORT at runtime
 EXPOSE 80
 
-CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
-CMD ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["sh", "-c", "php-fpm -D && envsubst '$PORT' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
