@@ -49,4 +49,12 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 ENTRYPOINT ["docker-entrypoint.sh"]
 
 # Démarrer PHP-FPM
-CMD ["php-fpm"]
+# ... votre Dockerfile ...
+# Définir le point d'entrée pour l'image
+# ... votre Dockerfile ...
+
+# Définir le point d'entrée pour l'image
+ENTRYPOINT ["docker-entrypoint.sh"]
+
+# Démarrer PHP-FPM en écoutant sur le port de Railway
+CMD ["php-fpm", "-F", "-d", "listen=0.0.0.0:$PORT"]
