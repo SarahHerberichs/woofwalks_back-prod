@@ -22,9 +22,6 @@ FROM nginx:alpine
 WORKDIR /var/www/html
 COPY --from=php-fpm /var/www/html /var/www/html
 
-# Copier config Nginx
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
 # PHP-FPM
 COPY --from=php-fpm /usr/local/etc/php /usr/local/etc/php
 COPY --from=php-fpm /usr/local/bin/docker-php-ext-* /usr/local/bin/
