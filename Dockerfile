@@ -1,50 +1,41 @@
-# =========================
-# Étape 1 : Installer les dépendances avec Composer
-# =========================
 FROM composer:2.4 AS builder
-
 WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
 
-# =========================
-# Étape 2 : Image finale pour prod
-# =========================
+# ======================
+# IMAGE FINALE
+# ======================
 FROM php:8.2-fpm-alpine
 
 WORKDIR /var/www/html
 
-# Installer les dépendances système et extensions PHP
-RUN apk add --no-cache bash git shadow mysql-client icu-dev \
+# Install system deps
+RUN apk add --no-cache bash git shadow mysql-client icu-dev nginx supervisor \
     && docker-php-ext-install pdo pdo_mysql intl
 
-RUN wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz \
-    && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz \
-    && rm dockerize-linux-amd64-v0.6.1.tar.gz
-
-# Copier vendor depuis le build stage
+# Copier vendor
 COPY --from=builder /app/vendor /var/www/html/vendor
 
-# Copier le code et les fichiers de configuration
+# Copier code + conf
 COPY . /var/www/html
-COPY php-fpm-prod.conf /usr/local/etc/php-fpm.conf
-
-# Copier le fichier php.ini
 COPY php.ini /usr/local/etc/php/
-#
-# Copier explicitement le dossier des migrations
-COPY migrations /var/www/html/migrations
+COPY nginx-prod.conf /etc/nginx/conf.d/default.conf
 COPY .env.railway /var/www/html/.env
 
-# Créer les répertoires nécessaires et mettre les permissions
+# Supervisord config
+RUN mkdir -p /etc/supervisor.d/
+COPY supervisord.conf /etc/supervisor.d/supervisord.ini
+
+# Create dirs
 RUN mkdir -p var/cache var/log var/sessions public \
-    && chown -R www-data:www-data var
+    && chown -R www-data:www-data var /var/www/html
 
-# Copier l’entrypoint et le rendre exécutable
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+# Env
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
+ENV DATABASE_URL="mysql://root:IlcNzJQOqGRrtpEqpgzVAtCGfTvlagDM@mysql.railway.internal:3306/railway"
 
-# Définir le point d'entrée pour l'image
-ENTRYPOINT ["docker-entrypoint.sh"]
+EXPOSE 80
 
-CMD ["php-fpm", "-F", "-y", "/usr/local/etc/php-fpm.conf", "-R"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor.d/supervisord.ini"]
