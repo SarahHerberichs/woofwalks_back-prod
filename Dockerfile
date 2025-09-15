@@ -15,7 +15,7 @@ FROM php:8.2-fpm-alpine
 WORKDIR /var/www/html
 
 # Installer dépendances système et extensions PHP + Nginx
-RUN apk add --no-cache bash git shadow icu-dev nginx gettext \
+RUN apk add --no-cache bash git shadow icu-dev nginx \
     && docker-php-ext-install pdo pdo_mysql intl
 
 # Copier vendor et code
@@ -31,14 +31,12 @@ COPY .env.railway /var/www/html/.env
 RUN mkdir -p var/cache var/log var/sessions public \
     && chown -R www-data:www-data var
 
-# Nginx config will be generated from a template to bind on $PORT at runtime
-COPY nginx.conf.template /etc/nginx/nginx.conf.template
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Exposed port is managed by Railway; Nginx will bind to $PORT at runtime
 EXPOSE 80
 
-CMD ["sh", "-c", "php-fpm -D && envsubst '$PORT' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"]
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
