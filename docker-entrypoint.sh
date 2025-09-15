@@ -10,23 +10,19 @@ done
 
 echo "Base de données prête."
 
-# Forcer l'environnement prod
+# Variables d'environnement prod
 export APP_ENV=prod
 export APP_DEBUG=0
 
-# Corriger les permissions sur var/cache et var/log
-chown -R www-data:www-data var/cache var/log || true
-chmod -R 775 var/cache var/log || true
+# Vérifier si des migrations sont encore à exécuter
+PENDING=$(php bin/console doctrine:migrations:status --env=prod --format=string | grep "New" | awk '{print $2}')
 
-# Vider et régénérer le cache prod
-php bin/console cache:clear --env=prod
-php bin/console cache:warmup --env=prod
+if [ "$PENDING" != "0" ]; then
+    echo "Migrations en attente : $PENDING. Lancement..."
+    php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+else
+    echo "Aucune migration à exécuter."
+fi
 
-# Ajouter les versions de migrations déjà exécutées (optionnel si ta BDD est déjà à jour)
-php bin/console doctrine:migrations:sync-metadata-storage --no-interaction
-
-# Exécuter les migrations en prod
-php bin/console doctrine:migrations:migrate --no-interaction --env=prod || true
-
-# Lancer PHP-FPM
-exec php-fpm
+# Démarrer PHP-FPM
+php-fpm
