@@ -26,7 +26,6 @@ nelmio_cors:
             allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
 
 # testprod
-
 # nelmio_cors:
 #   defaults:
 #     allow_origin: ["https://localhost:8443"]
