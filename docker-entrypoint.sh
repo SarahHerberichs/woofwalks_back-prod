@@ -8,21 +8,14 @@ do
   sleep 1
 done
 
-echo "Base de données prête."
+echo "Base de données prête. Démarrage des migrations..."
 
 # Variables d'environnement prod
 export APP_ENV=prod
 export APP_DEBUG=0
 
-# Vérifier si des migrations sont encore à exécuter
-PENDING=$(php bin/console doctrine:migrations:status --env=prod --format=string | grep "New" | awk '{print $2}')
+# Exécuter les migrations sans chercher de .env
+php bin/console doctrine:migrations:migrate --no-interaction --env=prod
 
-if [ "$PENDING" != "0" ]; then
-    echo "Migrations en attente : $PENDING. Lancement..."
-    php bin/console doctrine:migrations:migrate --no-interaction --env=prod
-else
-    echo "Aucune migration à exécuter."
-fi
-
-# Démarrer PHP-FPM
+# Lancer le serveur ou le processus principal
 php-fpm
