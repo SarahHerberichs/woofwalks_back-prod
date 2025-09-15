@@ -11,14 +11,9 @@ echo "Migrations done."
 # Clear and warm up the cache
 php bin/console cache:clear
 php bin/console cache:warmup
-php-fpm -F -d "listen=0.0.0.0:$PORT" &
 
+# Ensure the log file exists
 touch /var/www/html/var/log/php_errors.log
 
-# Start the PHP-FPM process
-php-fpm -F -d "listen=0.0.0.0:$PORT" &
-
-# Display the PHP-FPM logs for debugging
-tail -f /var/www/html/var/log/php_errors.log
-# Start the PHP-FPM process
-exec "$@"
+# Start the PHP-FPM process and redirect output
+exec php-fpm -F -d "listen=0.0.0.0:$PORT"
