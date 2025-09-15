@@ -28,7 +28,7 @@ COPY migrations /var/www/html/migrations
 COPY .env.railway /var/www/html/.env
 
 # Permissions
-RUN mkdir -p var/cache var/log var/sessions public \
+RUN mkdir -p var/cache var/cache/lock var/log var/sessions public \
     && chown -R www-data:www-data var
 
 COPY nginx.conf /etc/nginx/nginx.conf
