@@ -21,12 +21,12 @@ RUN apk add --no-cache bash git shadow mysql-client icu-dev \
 # Copier vendor depuis le build stage
 COPY --from=builder /app/vendor /var/www/html/vendor
 
-# Copier tout le code Symfony
+# Copier le code et les fichiers de configuration
 COPY . /var/www/html
-# Copier le dossier de configuration
-COPY config /var/www/html/config
-# Après la ligne qui copie votre code
+
+# Copier le fichier php.ini
 COPY php.ini /usr/local/etc/php/
+
 # Copier explicitement le dossier des migrations
 COPY migrations /var/www/html/migrations
 COPY .env.railway /var/www/html/.env
