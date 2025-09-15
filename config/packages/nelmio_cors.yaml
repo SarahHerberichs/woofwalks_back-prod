@@ -25,6 +25,7 @@ nelmio_cors:
     paths:
         '^/': null
 
+
 # testprod
 
 # nelmio_cors:
