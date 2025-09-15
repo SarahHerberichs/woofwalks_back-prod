@@ -1,31 +1,49 @@
-# Étape 1 : Build vendor
+# =========================
+# Étape 1 : Installer les dépendances avec Composer
+# =========================
 FROM composer:2.4 AS builder
+
 WORKDIR /app
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --optimize-autoloader --no-scripts
 
-# Étape 2 : PHP-FPM
-FROM php:8.2-fpm-alpine AS php-fpm
+# =========================
+# Étape 2 : Image finale pour prod
+# =========================
+FROM php:8.2-fpm-alpine
+
 WORKDIR /var/www/html
+
+# Installer les dépendances système et extensions PHP
 RUN apk add --no-cache bash git shadow mysql-client icu-dev \
     && docker-php-ext-install pdo pdo_mysql intl
+
+RUN wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz \
+    && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz \
+    && rm dockerize-linux-amd64-v0.6.1.tar.gz
+# ... rest of your Dockerfile
+# Copier vendor depuis le build stage
 COPY --from=builder /app/vendor /var/www/html/vendor
+
+# Copier le code et les fichiers de configuration
 COPY . /var/www/html
+
+# Copier le fichier php.ini
 COPY php.ini /usr/local/etc/php/
+#
+# Copier explicitement le dossier des migrations
+COPY migrations /var/www/html/migrations
 COPY .env.railway /var/www/html/.env
-COPY nginx-prod.conf /etc/nginx/conf.d/default.conf
-RUN mkdir -p var/cache var/log var/sessions \
+
+# Créer les répertoires nécessaires et mettre les permissions
+RUN mkdir -p var/cache var/log var/sessions public \
     && chown -R www-data:www-data var
 
-# Étape 3 : Nginx + PHP-FPM ensemble
-FROM nginx:alpine
-WORKDIR /var/www/html
-COPY --from=php-fpm /var/www/html /var/www/html
+# Copier l’entrypoint et le rendre exécutable
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# PHP-FPM
-COPY --from=php-fpm /usr/local/etc/php /usr/local/etc/php
-COPY --from=php-fpm /usr/local/bin/docker-php-ext-* /usr/local/bin/
-COPY --from=php-fpm /usr/local/sbin/php-fpm /usr/local/sbin/php-fpm
+# Définir le point d'entrée pour l'image
+ENTRYPOINT ["docker-entrypoint.sh"]
 
-# Superviser Nginx + PHP-FPM
-CMD sh -c "php-fpm -D && nginx -g 'daemon off;'"
+CMD ["php-fpm", "-F", "-d", "listen=0.0.0.0:$PORT"]
