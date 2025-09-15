@@ -4,5 +4,10 @@ set -e
 # Cette ligne est la seule chose à garder pour les permissions
 chown -R www-data:www-data /var/www/html/var
 
+
+echo "=== Informations PHP ==="
+php -i
+echo "========================"
+
 # Cette ligne exécute la commande principale de votre Dockerfile
 exec "$@"
