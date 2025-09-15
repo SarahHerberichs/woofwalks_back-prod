@@ -21,12 +21,13 @@ RUN apk add --no-cache bash git shadow mysql-client icu-dev \
 RUN wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz \
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz \
     && rm dockerize-linux-amd64-v0.6.1.tar.gz
-# ... rest of your Dockerfile
+
 # Copier vendor depuis le build stage
 COPY --from=builder /app/vendor /var/www/html/vendor
 
 # Copier le code et les fichiers de configuration
 COPY . /var/www/html
+COPY php-fpm-prod.conf /usr/local/etc/php-fpm.conf
 
 # Copier le fichier php.ini
 COPY php.ini /usr/local/etc/php/
@@ -46,4 +47,5 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 # Définir le point d'entrée pour l'image
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-CMD ["php-fpm", "-F", "-d", "listen=0.0.0.0:$PORT"]
+CMD ["php-fpm", "-F"]
+
