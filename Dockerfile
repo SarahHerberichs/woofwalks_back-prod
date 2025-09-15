@@ -32,7 +32,7 @@ RUN mkdir -p var/cache var/log var/sessions public \
     && chown -R www-data:www-data var
 
 # Config Nginx
-COPY nginx-prod.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/
