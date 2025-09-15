@@ -8,12 +8,7 @@ echo "Running migrations..."
 php bin/console doctrine:migrations:migrate --no-interaction
 echo "Migrations done."
 
-# Clear and warm up cache
-php bin/console cache:clear
-php bin/console cache:warmup
-
-# Create log file
-touch var/log/php_errors.log
-chown www-data:www-data var/log/php_errors.log
-
-exec "$@"
+# This part is crucial for debugging
+echo "Starting PHP-FPM in foreground with error logging..."
+# Ensure PHP-FPM logs to stdout so Railway can capture it
+exec php-fpm -F -O -y /usr/local/etc/php-fpm.conf
