@@ -23,7 +23,8 @@ COPY --from=builder /app/vendor /var/www/html/vendor
 
 # Copier tout le code Symfony
 COPY . /var/www/html
-
+# Après la ligne qui copie votre code
+COPY php.ini /usr/local/etc/php/
 # Copier explicitement le dossier des migrations
 COPY migrations /var/www/html/migrations
 COPY .env.railway /var/www/html/.env
