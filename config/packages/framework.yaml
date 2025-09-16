@@ -64,4 +64,4 @@ when@prod:
   framework:
     session:
       cookie_secure: auto
-      cookie_samesite: none
+      cookie_samesite: lax
