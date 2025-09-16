@@ -25,7 +25,7 @@ COPY php.ini /usr/local/etc/php/
 
 # Copier migrations et .env
 COPY migrations /var/www/html/migrations
-COPY .env.railway /var/www/html/.env
+# COPY .env.railway /var/www/html/.env
 
 # Permissions
 RUN mkdir -p var/cache var/cache/lock var/log var/sessions public \
