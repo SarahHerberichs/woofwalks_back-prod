@@ -1,22 +1,19 @@
 ###> symfony/framework-bundle ###
-woofwalks_back/.env
-woofwalks_back/.env.dev
-woofwalks_back/.env.local
-woofwalks_back/.env.railway
+.env.local
+.env.local.php
+.env.test
+.env.prod
+.env.railway
+.env.*.local
 
-/.env.local
-/.env.local.php
-/.env.test
-/.env.*.local
-/.env.railway
+
+
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
 /vendor/
 /var/cache/
 /var/log/
-###< symfony/framework-bundle ###
-
 
 ###> phpunit/phpunit ###
 /phpunit.xml
