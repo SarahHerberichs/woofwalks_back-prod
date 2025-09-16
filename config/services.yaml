@@ -19,19 +19,19 @@
 #     # add more service definitions when explicit configuration is needed
 #     # please note that last definitions always *replace* previous ones
 parameters:
-  uploads_directory: "%kernel.project_dir%/public/uploads" # Définir le chemin du répertoire de téléchargement
+  uploads_directory: "%kernel.project_dir%/public/uploads" 
 services:
   _defaults:
-    autowire: true # Autowiring permet à Symfony d'injecter automatiquement les dépendances
+    autowire: true 
     autoconfigure: true 
     public: false
     
   App\:
-    resource: '../src/*'
+    resource: "../src/*"
     exclude:
-        - '../src/DependencyInjection/'
-        - '../src/Entity/'
-        - '../src/Kernel.php'
+        - "../src/DependencyInjection/"
+        - "../src/Entity/"
+        - "../src/Kernel.php"
   App\EventListener\AuthenticationSuccessListener:
     arguments:
       $refreshTokenTtl: 2592000 
@@ -46,9 +46,9 @@ services:
   App\Security\RefreshTokenAuthenticator: ~
   App\Security\CookieTokenAuthenticator:
     arguments:
-      $tokenExtractor: '@lexik_jwt_authentication.extractor.chain_extractor'
-      $jwtEncoder: '@lexik_jwt_authentication.encoder'
-      $userProvider: '@security.user.provider.concrete.app_user_provider'
+      $tokenExtractor: "@lexik_jwt_authentication.extractor.chain_extractor"
+      $jwtEncoder: "@lexik_jwt_authentication.encoder"
+      $userProvider: "@security.user.provider.concrete.app_user_provider"
 
   App\EventSubscriber\JWTCreatedSubscriber: ~
   App\EventSubscriber\UserRegistrationSubscriber:
@@ -57,6 +57,16 @@ services:
     tags:
       - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse, priority: 10 }
     public: true
+
+  App\EventListener\CsrfRequestListener:
+    tags:
+      - {
+          name: kernel.event_listener,
+          event: kernel.request,
+          method: onKernelRequest,
+          priority: 1000,
+        }
+
   App\DataPersister\UserDataPersister: 
     arguments:
       $frontendUrl: '%env(FRONTEND_URL)%' 
