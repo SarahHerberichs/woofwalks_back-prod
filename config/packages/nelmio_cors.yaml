@@ -6,13 +6,13 @@ nelmio_cors:
     expose_headers: ["Link"]
     max_age: 3600
     allow_credentials: true
-#   paths:
-#     "^/api/":
-#       allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
-#       allow_methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"]
-#       allow_headers: ["Content-Type", "Authorization"]
-#       max_age: 3600
-#       allow_credentials: true
+  paths:
+    "^/api/":
+      allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
+      allow_methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"]
+      allow_headers: ["Content-Type", "Authorization"]
+      max_age: 3600
+      allow_credentials: true
 
 #RAILWAY
 # nelmio_cors:
