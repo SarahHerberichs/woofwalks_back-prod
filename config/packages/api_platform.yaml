@@ -23,12 +23,6 @@ api_platform:
     extra_properties:
       standard_put: true
       rfc_7807_compliant_errors: true
-  cors:
-    allow_origin: ['https://woofwalksfront-prod-production.up.railway.app']
-    allow_credentials: true
-    allow_headers: ['Content-Type', 'Authorization', 'X-Requested-With']
-    expose_headers: ['Link', 'Content-Type']
-    allow_methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS']
-    max_age: 3600
+  
 
   use_symfony_listeners: true
