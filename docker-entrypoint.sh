@@ -10,6 +10,8 @@ if command -v php >/dev/null 2>&1; then
     php bin/console doctrine:migrations:migrate --no-interaction || true
   fi
 fi
+mkdir -p /var/www/html/public/media
+chown -R www-data:www-data /var/www/html/public
 
 # Start PHP-FPM and Nginx
 php-fpm -D && nginx -g 'daemon off;'
