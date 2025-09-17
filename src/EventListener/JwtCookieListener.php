@@ -74,7 +74,7 @@ class JwtCookieListener {
             $xsrfCookie = Cookie::create('XSRF-TOKEN', $csrfToken)
                 ->withHttpOnly(false)
                 ->withSecure(true)
-                ->withSameSite('None')
+                ->withSameSite('Lax')
                 ->withPath('/');
             $response->headers->setCookie($xsrfCookie);
 
