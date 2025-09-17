@@ -6,5 +6,5 @@ framework:
             interval: '1 minute'
         login:
           policy: 'fixed_window'
-          limit: 5       # nb max d'essais
+          limit: 5       
           interval: '1 minute'
