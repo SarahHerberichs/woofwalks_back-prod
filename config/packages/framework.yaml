@@ -26,13 +26,13 @@ when@test:
 when@prod:
   framework:
     session:
-      cookie_secure: auto
-      cookie_samesite: none
-    trusted_proxies: "%env(TRUSTED_PROXIES)%"
-    trusted_headers:
-      - x-forwarded-for
-      - x-forwarded-proto
-      - x-forwarded-host
-      - x-forwarded-port
-      - x-forwarded-prefix
-      - forwarded
+    #   cookie_secure: auto
+    #   cookie_samesite: none
+    # trusted_proxies: "%env(TRUSTED_PROXIES)%"
+    # trusted_headers:
+    #   - x-forwarded-for
+    #   - x-forwarded-proto
+    #   - x-forwarded-host
+    #   - x-forwarded-port
+    #   - x-forwarded-prefix
+    #   - forwarded
