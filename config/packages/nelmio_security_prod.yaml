@@ -8,8 +8,8 @@ nelmio_security:
   content_type:
     nosniff: true
     #Forçage du HTTPS
-  forced_ssl:
-    hosts: ['woofwalksback-prod-production.up.railway.app']
-    hsts_max_age: 31536000
-    hsts_subdomains: true
-    hsts_preload: true
+  # forced_ssl:
+  #   hosts: ['woofwalksback-prod-production.up.railway.app']
+  #   hsts_max_age: 31536000
+  #   hsts_subdomains: true
+  #   hsts_preload: true
