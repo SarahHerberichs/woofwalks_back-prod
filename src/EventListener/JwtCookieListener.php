@@ -51,7 +51,6 @@ class JwtCookieListener {
                 ->withHttpOnly(false)
                 ->withSecure(true)
                 ->withSameSite('None')               // autorise cross-site
-                ->withDomain('woofwalksfront-prod-production.up.railway.app')
                 ->withPath('/');
             $response->headers->setCookie($xsrfCookie);
 
@@ -76,7 +75,6 @@ class JwtCookieListener {
                 ->withHttpOnly(false)
                 ->withSecure(true)
                 ->withSameSite('None')
-                ->withDomain('woofwalksfront-prod-production.up.railway.app') 
                 ->withPath('/');
             $response->headers->setCookie($xsrfCookie);
 
