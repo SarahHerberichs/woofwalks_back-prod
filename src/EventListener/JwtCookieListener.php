@@ -75,6 +75,7 @@ class JwtCookieListener {
                 ->withHttpOnly(false)
                 ->withSecure(true)
                 ->withSameSite('None')
+                ->withDomain('woofwalksfront-prod-production.up.railway.app') 
                 ->withPath('/');
             $response->headers->setCookie($xsrfCookie);
 
