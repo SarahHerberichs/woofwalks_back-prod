@@ -53,9 +53,11 @@ class JwtCookieListener {
                 ->withSameSite('None')
                 ->withPath('/');
             $response->headers->setCookie($xsrfCookie);
-
+            
+            // Debug: Log du cookie créé
             error_log('🍪 XSRF-TOKEN cookie créé: ' . $csrfToken);
             error_log('🍪 Cookie headers: ' . $response->headers->get('Set-Cookie'));
+
             // Supprime le token du corps de la réponse (pour éviter qu'il soit accessible côté frontend)
             unset($content['token']);
 
@@ -73,15 +75,17 @@ class JwtCookieListener {
 
             // Émet/renouvelle le cookie CSRF côté refresh
             $csrfToken = bin2hex(random_bytes(32));
-            $xsrfCookie = Cookie::create('XSRF-TOKEN', $csrfToken);
+            $xsrfCookie = Cookie::create('XSRF-TOKEN', $csrfToken)
                 ->withHttpOnly(false)
                 ->withSecure(true)
                 ->withSameSite('None')
                 ->withPath('/');
             $response->headers->setCookie($xsrfCookie);
-
+            
+            // Debug: Log du cookie créé
             error_log('🍪 XSRF-TOKEN cookie créé (refresh): ' . $csrfToken);
-            error_log('🍪 Cookie headers: ' . $response->headers->get('Set-Cookie')):
+            error_log('🍪 Cookie headers: ' . $response->headers->get('Set-Cookie'));
+
             unset($content['refresh_token']);
             
             $response->setContent(json_encode($content));
