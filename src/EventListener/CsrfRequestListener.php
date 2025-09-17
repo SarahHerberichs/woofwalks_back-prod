@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 class CsrfRequestListener {
     /**
      * Valide l'en-tête X-CSRF-Token par rapport au cookie XSRF-TOKEN
-     * pour les méthodes mutatives. -- Erreur s'ils ne sont pas valides
+     * pour les méthodes mutatives. -- Erreur s'ils ne sont pas
      */
     public function onKernelRequest(RequestEvent $event): void {
     
