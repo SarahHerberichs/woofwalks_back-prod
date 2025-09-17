@@ -1,18 +1,33 @@
+# nelmio_cors:
+#   defaults:
+#     allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
+#     allow_methods: ["GET", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]
+#     allow_headers: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-xsrf-token']
+#     expose_headers: ["Link"]
+#     max_age: 3600
+#     allow_credentials: true
+#   paths:
+#     "^/api/":
+#       allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
+#       allow_methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"]
+#       allow_headers: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-xsrf-token']      
+#       max_age: 3600
+#       allow_credentials: true
 nelmio_cors:
   defaults:
-    allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
-    allow_methods: ["GET", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]
-    allow_headers: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-xsrf-token']
-    expose_headers: ["Link"]
-    max_age: 3600
+    allow_origin: ['https://woofwalksfront-prod-production.up.railway.app']
     allow_credentials: true
+    allow_headers: ['Content-Type','Authorization','X-CSRF-Token','x-xsrf-token']
+    allow_methods: ['GET','POST','OPTIONS','PUT','PATCH','DELETE']
+    max_age: 3600
   paths:
-    "^/api/":
-      allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
-      allow_methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"]
-      allow_headers: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-xsrf-token']      
-      max_age: 3600
+    '^/api/':
+      allow_origin: ['https://woofwalksfront-prod-production.up.railway.app']
+      allow_methods: ['GET','POST','OPTIONS','PUT','PATCH','DELETE']
+      allow_headers: ['Content-Type','Authorization','X-CSRF-Token','x-xsrf-token']
       allow_credentials: true
+      max_age: 3600
+
 
 #RAILWAY
 # nelmio_cors:
