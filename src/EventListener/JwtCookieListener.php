@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Cookie;
 
 class JwtCookieListener {
     public function onKernelResponse(ResponseEvent $event): void {
+                error_log('🔍 JwtCookieListener appelé sur: ' . $event->getRequest()->getPathInfo());
+
         // error_log('🔍 JwtCookieListener appelé');
         $request = $event->getRequest();
         //Routes ou le listener doit s'executer
