@@ -1,48 +1,19 @@
-# nelmio_cors:
-#   defaults:
-#     allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
-#     allow_methods: ["GET", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]
-#     allow_headers: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-xsrf-token']
-#     expose_headers: ["Link"]
-#     max_age: 3600
-#     allow_credentials: true
-#   paths:
-#     "^/api/":
-#       allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
-#       allow_methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"]
-#       allow_headers: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-xsrf-token']      
-#       max_age: 3600
-#       allow_credentials: true
-
 nelmio_cors:
   defaults:
-    allow_origin: ["%env(CORS_ALLOW_ORIGIN)%"]
+    allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
     allow_methods: ["GET", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]
-    allow_headers:
-      [
-        "Content-Type",
-        "Authorization",
-        "X-CSRF-Token",
-        "x-xsrf-token",
-        "X-Requested-With",
-      ]
-    expose_headers: ["Link", "Set-Cookie"]
+    allow_headers: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-xsrf-token']
+    expose_headers: ["Link"]
     max_age: 3600
     allow_credentials: true
   paths:
     "^/api/":
-      allow_origin: ["%env(CORS_ALLOW_ORIGIN)%"]
+      allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
       allow_methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"]
-      allow_headers:
-        [
-          "Content-Type",
-          "Authorization",
-          "X-CSRF-Token",
-          "x-xsrf-token",
-          "X-Requested-With",
-        ]
+      allow_headers: ['Content-Type', 'Authorization', 'X-CSRF-Token', 'x-xsrf-token']      
       max_age: 3600
       allow_credentials: true
+
 #RAILWAY
 # nelmio_cors:
 #     defaults:
