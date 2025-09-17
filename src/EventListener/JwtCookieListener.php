@@ -50,7 +50,8 @@ class JwtCookieListener {
             $xsrfCookie = Cookie::create('XSRF-TOKEN', $csrfToken)
                 ->withHttpOnly(false)
                 ->withSecure(true)
-                ->withSameSite('Lax')
+                ->withSameSite('None')               // autorise cross-site
+                ->withDomain('woofwalksfront-prod-production.up.railway.app')
                 ->withPath('/');
             $response->headers->setCookie($xsrfCookie);
 
