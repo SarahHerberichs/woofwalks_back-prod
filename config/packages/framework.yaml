@@ -27,6 +27,7 @@ when@prod:
   framework:
     session:
       cookie_secure: auto
+      cookie_samesite: none
     trusted_proxies: "%env(TRUSTED_PROXIES)%"
     trusted_headers:
       - x-forwarded-for
