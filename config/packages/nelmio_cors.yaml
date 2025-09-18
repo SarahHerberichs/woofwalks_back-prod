@@ -15,21 +15,35 @@
 #       allow_credentials: true
 
 
+# woofwalks_back/config/packages/nelmio_cors.yaml
 nelmio_cors:
   defaults:
     allow_origin: ['https://woofwalksfront.railway.app']
     allow_credentials: true
-    allow_headers: ['*']
-    expose_headers: ['*']
+    allow_headers: 
+      - 'Content-Type'
+      - 'Authorization'
+      - 'X-Requested-With'
+      - 'X-CSRF-Token'
+      - 'Accept'
+    expose_headers: 
+      - 'Link'
+      - 'Content-Type'
     max_age: 3600
   paths:
     "^/api/":
       allow_origin: ['https://woofwalksfront.railway.app']
       allow_credentials: true
-      allow_headers: ['*']
-      expose_headers: ['*']
+      allow_headers: 
+        - 'Content-Type'
+        - 'Authorization'
+        - 'X-Requested-With'
+        - 'X-CSRF-Token'
+        - 'Accept'
+      expose_headers: 
+        - 'Link'
+        - 'Content-Type'
       max_age: 3600
-      
 # testprod
 # nelmio_cors:
 #   defaults:
