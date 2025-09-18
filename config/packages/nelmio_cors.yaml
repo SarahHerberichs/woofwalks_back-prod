@@ -18,7 +18,7 @@
 # woofwalks_back/config/packages/nelmio_cors.yaml
 nelmio_cors:
   defaults:
-    allow_origin: ['https://woofwalksfront.railway.app']
+    allow_origin: ['https://woofwalksfront-prod-production.up.railway.app']
     allow_credentials: true
     allow_headers: 
       - 'Content-Type'
@@ -32,7 +32,7 @@ nelmio_cors:
     max_age: 3600
   paths:
     "^/api/":
-      allow_origin: ['https://woofwalksfront.railway.app']
+      allow_origin: ['https://woofwalksfront-prod-production.up.railway.app']
       allow_credentials: true
       allow_headers: 
         - 'Content-Type'
