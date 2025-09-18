@@ -42,7 +42,7 @@ class JwtCookieListener {
                 ->withSameSite('Lax') // Protège un peu contre les attaques CSRF
                 ->withPath('/');     // Le cookie sera envoyé pour toutes les requêtes sur le site
 
-            // Ajout du cookie à l'en-tête de la réponse HTTP
+            // Ajout du cookie à l’en-tête de la réponse HTTP
             $response->headers->setCookie($cookie);
 
             // Émet un cookie CSRF non-HttpOnly pour double-submit (lu par le frontend)
@@ -50,11 +50,11 @@ class JwtCookieListener {
             $xsrfCookie = Cookie::create('XSRF-TOKEN', $csrfToken)
                 ->withHttpOnly(false)
                 ->withSecure(true)
-                ->withSameSite('None')
+                ->withSameSite('Lax')
                 ->withPath('/');
             $response->headers->setCookie($xsrfCookie);
 
-            // Supprime le token du corps de la réponse (pour éviter qu'il soit accessible côté frontend)
+            // Supprime le token du corps de la réponse (pour éviter qu’il soit accessible côté frontend)
             unset($content['token']);
 
             // Remplace le contenu JSON de la réponse par le nouveau contenu sans le token
@@ -74,7 +74,7 @@ class JwtCookieListener {
             $xsrfCookie = Cookie::create('XSRF-TOKEN', $csrfToken)
                 ->withHttpOnly(false)
                 ->withSecure(true)
-                ->withSameSite('None')
+                ->withSameSite('Lax')
                 ->withPath('/');
             $response->headers->setCookie($xsrfCookie);
 

@@ -17,23 +17,19 @@
 
 nelmio_cors:
   defaults:
-    allow_origin: ["%env(CORS_ALLOW_ORIGIN)%"]
-    allow_methods: ["GET", "OPTIONS", "POST", "PUT", "PATCH", "DELETE"]
-    allow_headers:
-      ["Content-Type", "Authorization", "X-CSRF-Token", "x-xsrf-token"]
-    expose_headers: ["Link", "Set-Cookie"]
-    max_age: 3600
+    allow_origin: ['https://woofwalksfront.railway.app']
     allow_credentials: true
+    allow_headers: ['*']
+    expose_headers: ['*']
+    max_age: 3600
   paths:
     "^/api/":
-      allow_origin: ["%env(CORS_ALLOW_ORIGIN)%"]
-      allow_methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"]
-      allow_headers:
-        ["Content-Type", "Authorization", "X-CSRF-Token", "x-xsrf-token"]
-      expose_headers: ["Link", "Set-Cookie"]
-      max_age: 3600
+      allow_origin: ['https://woofwalksfront.railway.app']
       allow_credentials: true
-
+      allow_headers: ['*']
+      expose_headers: ['*']
+      max_age: 3600
+      
 # testprod
 # nelmio_cors:
 #   defaults:
