@@ -58,15 +58,18 @@ services:
       - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse, priority: 10 }
     public: true
 
-  # App\EventListener\CsrfRequestListener:
-  #   tags:
-  #     - {
-  #         name: kernel.event_listener,
-  #         event: kernel.request,
-  #         method: onKernelRequest,
-  #         priority: 1000,
-  #       }
-
+  App\EventListener\CsrfRequestListener:
+    tags:
+      - {
+          name: kernel.event_listener,
+          event: kernel.request,
+          method: onKernelRequest,
+          priority: 1000,
+        }
+  App\EventListener\CorsOptionsListener:
+    tags:
+      - { name: kernel.event_listener, event: kernel.request, priority: 1000 }
+      
   App\DataPersister\UserDataPersister: 
     arguments:
       $frontendUrl: '%env(FRONTEND_URL)%' 
