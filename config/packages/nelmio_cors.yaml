@@ -15,8 +15,6 @@
 #       allow_credentials: true
 
 
-# woofwalks_back/config/packages/nelmio_cors.yaml
-# woofwalks_back/config/packages/nelmio_cors.yaml
 nelmio_cors:
   defaults:
     allow_origin: ['https://woofwalksfront-prod-production.up.railway.app']
