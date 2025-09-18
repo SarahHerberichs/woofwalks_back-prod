@@ -16,10 +16,12 @@
 
 
 # woofwalks_back/config/packages/nelmio_cors.yaml
+# woofwalks_back/config/packages/nelmio_cors.yaml
 nelmio_cors:
   defaults:
     allow_origin: ['https://woofwalksfront-prod-production.up.railway.app']
     allow_credentials: true
+    allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
     allow_headers: 
       - 'Content-Type'
       - 'Authorization'
@@ -34,6 +36,7 @@ nelmio_cors:
     "^/api/":
       allow_origin: ['https://woofwalksfront-prod-production.up.railway.app']
       allow_credentials: true
+      allow_methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
       allow_headers: 
         - 'Content-Type'
         - 'Authorization'
