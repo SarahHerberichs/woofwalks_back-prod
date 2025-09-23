@@ -13,9 +13,9 @@
 /var/cache/
 /var/log/
 
-###> phpunit/phpunit ###
+
 /phpunit.xml
 /.phpunit.cache/
-###< phpunit/phpunit ###
+
 config/jwt/*.pem
 
