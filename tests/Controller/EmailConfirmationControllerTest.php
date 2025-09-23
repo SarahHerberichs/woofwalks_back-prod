@@ -9,17 +9,15 @@ use Doctrine\ORM\EntityManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
-class EmailConfirmationControllerTest extends TestCase
-{
-    public function testConfirmEmailWithInvalidToken()
-    {
-        // Mock UserRepository to return null for invalid token
+class EmailConfirmationControllerTest extends TestCase {
+
+    public function testConfirmEmailWithInvalidToken() {
+
         $userRepository = $this->createMock(UserRepository::class);
         $userRepository->method('findOneBy')
             ->with(['confirmationToken' => 'invalid-token'])
             ->willReturn(null);
 
-        // Mock EntityManager (not used in this case)
         $entityManager = $this->createMock(EntityManagerInterface::class);
 
         $controller = new EmailConfirmationController();
@@ -37,13 +35,14 @@ class EmailConfirmationControllerTest extends TestCase
         );
     }
 
-    public function testConfirmEmailAlreadyVerified()
-    {
-        // Create a stub User with isVerified = true
+    public function testConfirmEmailAlreadyVerified() {
+
         $user = $this->createMock(User::class);
+        //Déclare que l'user est déjà vérifié
         $user->method('isVerified')->willReturn(true);
 
         $userRepository = $this->createMock(UserRepository::class);
+        //Simule un repo dont findoneby retourne l'user cree ci dessus
         $userRepository->method('findOneBy')
             ->willReturn($user);
 
@@ -64,19 +63,21 @@ class EmailConfirmationControllerTest extends TestCase
         );
     }
 
-    public function testConfirmEmailSuccess()
-    {
-        // Create a mock User
+    public function testConfirmEmailSuccess() {
+    
         $user = $this->getMockBuilder(User::class)
             ->onlyMethods(['isVerified', 'setConfirmationToken', 'setIsVerified', 'getConfirmationRequestedAt'])
+            //Rendre le Mock utilisable 
             ->getMock();
-
+        //Force l'user à Non Vérifié et simule une date de confirmation de compte
         $user->method('isVerified')->willReturn(false);
         $user->method('getConfirmationRequestedAt')->willReturn(new \DateTimeImmutable()); 
+        //Methode de supression du token apellé une fois pour le nuller, methode is verify passe status à true une fois
         $user->expects($this->once())->method('setConfirmationToken')->with(null);
         $user->expects($this->once())->method('setIsVerified')->with(true);
 
         $userRepository = $this->createMock(UserRepository::class);
+        //Associe la méthode du repository  a retourner l'user crée 
         $userRepository->method('findOneBy')
             ->willReturn($user);
 
@@ -84,7 +85,7 @@ class EmailConfirmationControllerTest extends TestCase
         $entityManager->expects($this->once())->method('flush');
 
         $controller = new EmailConfirmationController();
-
+        //Apres avoir associé l'utilisateur a un ustilisateur vérifié - on envoi ca au controlleur
         $response = $controller->confirmEmail('valid-token', $userRepository, $entityManager);
 
         $this->assertInstanceOf(JsonResponse::class, $response);

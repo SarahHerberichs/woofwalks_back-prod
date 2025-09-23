@@ -7,33 +7,32 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use App\Service\Contract\WalkCreationServiceInterface;
+use App\Service\Contract\WalkWithChatCreationInterface;
+use App\Service\WalkValidationService;
 
 class WalkController extends AbstractController {
     #[Route('/api/walkscustom', name: 'create_walk', methods: ['POST'])]
-    public function createWalk(Request $request, WalkCreationServiceInterface $walkCreationServiceInterface): JsonResponse
-    {
-          $user = $this->getUser();
-            if (!$user) {
-                return new JsonResponse(['error' => 'Authentication required'], 401);
-            }
+    public function createWalk(
+        Request $request,
+        WalkWithChatCreationInterface $walkCreator,
+        WalkValidationService $validationService 
+
+        ): JsonResponse {
+
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['error' => 'Authentication required'], 401);
+        }
         $data = json_decode($request->getContent(), true);
   
-        // Validation basique dans le contrôleur
-        if (
-            empty($data['title']) ||
-            empty($data['description']) ||
-            empty($data['datetime']) ||
-            empty($data['photo']) || 
-            empty($data['location']) ||
-            !isset($data['is_custom_location']) || 
-            !is_bool($data['is_custom_location']) ||
-            !isset($data['max_participants']) 
-        ) {
-            return new JsonResponse(['error' => 'Missing required fields'], 400);
-        }
+        // Validation centralisée par le Service validation
+        $validationResult = $validationService->validateWalkData($data);
 
-        $walk = $walkCreationServiceInterface->createWalkAndChat($data);
+        if (!$validationResult->isValid()) {
+            return new JsonResponse(['errors' => $validationResult->getErrors()], 400);
+        }
+        //Passe par Interface pour apeller Service de Création
+        $walk = $walkCreator->createWalkWithChat($data);
 
         if (!$walk) {
             return new JsonResponse(['error' => 'Failed to create walk (invalid data or dependencies)'], 400);
@@ -42,3 +41,4 @@ class WalkController extends AbstractController {
         return new JsonResponse(['message' => 'Walk created successfully'], 201);
     }
 }
+

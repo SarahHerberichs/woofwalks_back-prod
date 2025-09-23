@@ -6,10 +6,10 @@ use App\Entity\User;
 use App\Entity\Walk;
 use PHPUnit\Framework\TestCase;
 
-class WalkTest extends TestCase
-{
-    public function testWalkCreation(): void
-    {
+class WalkTest extends TestCase {
+
+    public function testWalkCreation(): void {
+        
         $walk = new Walk();
 
         $this->assertInstanceOf(Walk::class, $walk);
@@ -19,8 +19,7 @@ class WalkTest extends TestCase
         $this->assertTrue($walk->getIsCustomLocation());
     }
 
-    public function testSettersAndGetters(): void
-    {
+    public function testSettersAndGetters(): void {
         $walk = new Walk();
         $title = 'Morning Walk';
         $description = 'A nice walk in the park';
@@ -38,8 +37,7 @@ class WalkTest extends TestCase
         $this->assertSame($maxParticipants, $walk->getMaxParticipants());
     }
 
-    public function testParticipants(): void
-    {
+    public function testParticipants(): void {
         $walk = new Walk();
         $user = new User();
 

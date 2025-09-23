@@ -72,6 +72,7 @@ class JwtCookieListener {
             // Émet/renouvelle le cookie CSRF côté refresh
             $csrfToken = bin2hex(random_bytes(32));
             $xsrfCookie = Cookie::create('XSRF-TOKEN', $csrfToken)
+            //Accessible au JS! Le front end peut le lire et le mettre dans un header 
                 ->withHttpOnly(false)
                 ->withSecure(true)
                 ->withSameSite('Lax')

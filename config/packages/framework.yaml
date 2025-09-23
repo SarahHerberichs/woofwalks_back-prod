@@ -10,7 +10,6 @@ framework:
     handler_id: null
     cookie_secure: auto
     cookie_samesite: lax
-    cookie_httponly: true
 
   #esi: true
   #fragments: true
@@ -23,17 +22,16 @@ when@test:
     session:
       storage_factory_id: session.storage.factory.mock_file
 
-when@prod:
-  framework:
-    session:
-      cookie_secure: true
-      cookie_samesite: none  # ← Pour le proxy
-      cookie_httponly: true
-    trusted_proxies: "127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,172.17.0.0/16,172.18.0.0/16,172.19.0.0/16,172.20.0.0/16"
-    trusted_headers:
-      - x-forwarded-for
-      - x-forwarded-proto
-      - x-forwarded-host
-      - x-forwarded-port
-      - x-forwarded-prefix
-      - forwarded
+# when@prod:
+#   framework:
+#     session:
+#       cookie_secure: auto
+#       cookie_samesite: none
+#     trusted_proxies: "127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,172.17.0.0/16,172.18.0.0/16,172.19.0.0/16,172.20.0.0/16"
+#     trusted_headers:
+#       - x-forwarded-for
+#       - x-forwarded-proto
+#       - x-forwarded-host
+#       - x-forwarded-port
+#       - x-forwarded-prefix
+#       - forwarded

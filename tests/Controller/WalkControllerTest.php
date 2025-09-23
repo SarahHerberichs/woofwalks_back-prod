@@ -4,11 +4,32 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Entity\User;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
-class WalkControllerTest extends WebTestCase
-{
-    public function testCreateWalkSuccess()
-    {
+class WalkControllerTest extends WebTestCase {
+    
+    private function loginAndGetCsrfToken($client, $user): string {
+        $client->request('POST', '/api/login_check', [], [], [
+            'CONTENT_TYPE' => 'application/json'
+        ], json_encode([
+            'email' => $user->getEmail(),
+            'password' => 'password'
+        ]));
+
+        $response = $client->getResponse();
+        $cookies = $response->headers->getCookies();
+        
+        foreach ($cookies as $cookie) {
+            if ($cookie->getName() === 'XSRF-TOKEN') {
+                return $cookie->getValue();
+            }
+        }
+        
+        $this->fail('Token CSRF non trouvé');
+    }
+
+    public function testCreateWalkSuccess() {
+
         $client = static::createClient();
+        $client->catchExceptions(false);
         $container = static::getContainer();
 
         // Récupérer un utilisateur test
@@ -19,6 +40,8 @@ class WalkControllerTest extends WebTestCase
         $jwtManager = $container->get(JWTTokenManagerInterface::class);
         $token = $jwtManager->create($user);
 
+        $csrfToken = $this->loginAndGetCsrfToken($client, $user);
+
         $data = [
             'title' => 'Ma balade',
             'description' => 'Belle balade en forêt',
@@ -28,24 +51,16 @@ class WalkControllerTest extends WebTestCase
             'is_custom_location' => true,
             'max_participants' => 10,
         ];
-        $client->getCookieJar()->set(new \Symfony\Component\BrowserKit\Cookie(
-            'BEARER',
-            $token,
-            time() + 3600,
-            '/',
-            '',
-            false,
-            true,
-            false,
-            'Lax'
-        ));
-
-        $client->request(
+       $client->request(
             'POST',
             '/api/walkscustom',
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $token,  // ← JWT dans header
+                'HTTP_X_CSRF_TOKEN' => $csrfToken,          // ← CSRF dans header
+                'CONTENT_TYPE' => 'application/json'
+            ],
             json_encode($data)
         );
 

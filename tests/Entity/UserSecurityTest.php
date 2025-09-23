@@ -6,8 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
-class UserSecurityTest extends WebTestCase
-{
+class UserSecurityTest extends WebTestCase {
     private $client;
     private $em;
 
@@ -16,8 +15,8 @@ class UserSecurityTest extends WebTestCase
         $this->em = static::getContainer()->get(EntityManagerInterface::class);
     }
 
-    private function createUser(string $email, array $roles = []): User
-    {
+    private function createUser(string $email, array $roles = []): User {
+        
         $user = new User();
         $user->setEmail($email);
         $user->setRoles($roles);
@@ -55,7 +54,8 @@ class UserSecurityTest extends WebTestCase
     }
 
     public function testRegularUserCannotSeeAllUsers(): void {
-    $user  = $this->createUser('user_'.uniqid().'@example.com');
+
+        $user  = $this->createUser('user_'.uniqid().'@example.com');
 
         $this->client->loginUser($user);
 
@@ -78,7 +78,6 @@ class UserSecurityTest extends WebTestCase
 
          $jwtManager = self::getContainer()->get('lexik_jwt_authentication.jwt_manager');
 
-        // Génère le token pour l'utilisateur
         $token = $jwtManager->create($user);
 
         $this->client->request(
@@ -96,14 +95,14 @@ class UserSecurityTest extends WebTestCase
     }
 
     public function testUserCannotSeeOtherProfile(): void {
-    $user1  = $this->createUser('user_'.uniqid().'@example.com');
-    $user2  = $this->createUser('user_'.uniqid().'@example.com');
+
+        $user1  = $this->createUser('user_'.uniqid().'@example.com');
+        $user2  = $this->createUser('user_'.uniqid().'@example.com');
 
         $this->client->loginUser($user1);
 
         $jwtManager = self::getContainer()->get('lexik_jwt_authentication.jwt_manager');
 
-        // Génère le token pour l'utilisateur
         $token = $jwtManager->create($user1);
 
         $this->client->request(

@@ -12,8 +12,7 @@ use App\Entity\NotificationType;
 
 
 
-class NotificationService
-{
+class NotificationService {
     public function __construct(
         private EntityManagerInterface $em,
         private MessageBuilder $messageBuilder,
@@ -21,8 +20,7 @@ class NotificationService
         private SmsService $smsService
     ) {}
 
-    public function createAndDispatchNotification(User $user, string $typeCode, array $context): void
-    {
+    public function createAndDispatchNotification(User $user, string $typeCode, array $context): void {
         $type = $this->em->getRepository(NotificationType::class)->findOneBy(['code' => $typeCode]);
 
         if (!$type) {
@@ -44,8 +42,7 @@ class NotificationService
         $this->em->flush();
     }
 
-    private function sendNotification(Notification $notification): void
-    {
+    private function sendNotification(Notification $notification): void {
         $channel = $notification->getChannelUser()->getChannel()->getName();
         $user = $notification->getChannelUser()->getUser();
 

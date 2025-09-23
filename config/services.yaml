@@ -19,7 +19,7 @@
 #     # add more service definitions when explicit configuration is needed
 #     # please note that last definitions always *replace* previous ones
 parameters:
-  uploads_directory: "%kernel.project_dir%/public/uploads" 
+  uploads_directory: "%kernel.project_dir%/public/media" 
 services:
   _defaults:
     autowire: true 
@@ -32,6 +32,7 @@ services:
         - "../src/DependencyInjection/"
         - "../src/Entity/"
         - "../src/Kernel.php"
+        
   App\EventListener\AuthenticationSuccessListener:
     arguments:
       $refreshTokenTtl: 2592000 
@@ -66,10 +67,7 @@ services:
           method: onKernelRequest,
           priority: 1000,
         }
-  App\EventListener\CorsOptionsListener:
-    tags:
-      - { name: kernel.event_listener, event: kernel.request, priority: 1000 }
-      
+
   App\DataPersister\UserDataPersister: 
     arguments:
       $frontendUrl: '%env(FRONTEND_URL)%' 
@@ -104,9 +102,9 @@ services:
   App\EventListener\LogoutListener:
     tags:
         - { name: kernel.event_listener, event: Symfony\Component\Security\Http\Event\LogoutEvent, method: onLogout }
-  App\Service\Contract\WalkCreationServiceInterface:
-    alias: App\Service\WalkCreationService
-
+  
+  App\Service\Contract\WalkWithChatCreationInterface:
+    alias: App\Service\WalkAndChatOrchestrator
 
   App\EventListener\ApiRateLimiterListener:
     arguments:

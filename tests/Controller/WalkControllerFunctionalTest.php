@@ -8,40 +8,94 @@ use App\Entity\MainPhoto;
 use App\Entity\Location;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
-// La classe de test étend WebTestCase, ce qui fournit les outils nécessaires pour les tests fonctionnels Symfony
-class WalkControllerFunctionalTest extends WebTestCase
-{
 
-    // C'est la méthode de test, le nom commence par 'test' pour être détecté par PHPUnit
-    public function testCreateWalkEndpoint()
-    {
-        // 1. Initialisation du client
-        // Crée un client HTTP qui simule un navigateur pour interagir avec l'application.
+class WalkControllerFunctionalTest extends WebTestCase {
+    /**
+     * Helper method pour simuler un login et récupérer les cookies CSRF
+     */
+    private function loginAndGetCsrfToken($client, $user): string {
+        // Simule un login pour obtenir les cookies CSRF
+        $client->request('POST', '/api/login_check', [], [], [
+            'CONTENT_TYPE' => 'application/json'
+        ], json_encode([
+            'email' => $user->getEmail(),
+            'password' => 'password' 
+        ]));
+        
+        $response = $client->getResponse();
+
+        // Récupère le cookie XSRF-TOKEN
+        $cookies = $response->headers->getCookies();
+      
+        //Test voir si les 3 cookies sont récupérés
+        foreach ($cookies as $cookie) {
+            echo "Cookie: " . $cookie->getName() . " = " . $cookie->getValue() . "\n";
+        }
+
+        $xsrfToken = null;
+        //cherche ds les cookies le Xsrf et le stocke 
+        foreach ($cookies as $cookie) {
+            if ($cookie->getName() === 'XSRF-TOKEN') {
+                $xsrfToken = $cookie->getValue();
+                break;
+            }
+        }
+        //Vérifie que xsrf pas nul, sinnon echec avec msg erreur
+        $this->assertNotNull($xsrfToken, 'Cookie XSRF-TOKEN manquant après login');
+        
+        return $xsrfToken;
+    }
+    
+    /**
+     * Helper method pour récupérer le cookie CSRF depuis les cookies de la requête
+     */
+    private function getCsrfTokenFromCookies($client): string {
+        // Récupère les cookies de la session
+        $cookies = $client->getCookieJar()->all();
+        $xsrfToken = null;
+        
+        foreach ($cookies as $cookie) {
+            if ($cookie->getName() === 'XSRF-TOKEN') {
+                $xsrfToken = $cookie->getValue();
+                break;
+            }
+        }
+        
+        $this->assertNotNull($xsrfToken, 'Cookie XSRF-TOKEN manquant dans la session');
+        
+        return $xsrfToken;
+    }
+
+    
+    public function testCreateWalkEndpoint() {
+        // 1. Crée un navigateur 
         $client = static::createClient();
-        // Désactive la gestion des exceptions de Symfony pour qu'elles soient levées directement par PHPUnit
+        // Désactivation de gestion des exceptions de Symfony pour qu'elles soient levées directement par PHPUnit
         $client->catchExceptions(false);
-        // Récupère le conteneur de services de l'application
+        // Récupère le conteneur de services de l'application (Doctrine, Security,Router,Services,Controllers...)
         $container = static::getContainer();
 
         // 2. Préparation des données d'authentification
-        // Utilise la base de données de test pour trouver le premier utilisateur (créé par les fixtures).
+        // Récupère éléments nécessaires en BDD
         $user = $container->get('doctrine')->getRepository(User::class)->findOneBy([]);
-        // Trouve une Photo et une Location qui existent déjà dans la base de données de test
         $photo = $container->get('doctrine')->getRepository(MainPhoto::class)->findOneBy([]);
         $location = $container->get('doctrine')->getRepository(Location::class)->findOneBy([]);
-        // Vérifie que l'utilisateur existe bien pour que le test puisse continuer.
+        // Vérifie que les données existent bien
         $this->assertNotNull($user, 'Aucun utilisateur trouvé pour le test');
         $this->assertNotNull($photo, 'Aucune photo trouvée dans les fixtures.');
         $this->assertNotNull($location, 'Aucune localisation trouvée dans les fixtures.');
 
         // Récupère le service de gestion des tokens JWT pour en générer un.
         $jwtManager = $container->get(JWTTokenManagerInterface::class);
-        // Crée le token pour l'utilisateur de test.
+        // Crée le token pour l'utilisateurtest.
         $token = $jwtManager->create($user);
         // S'assure que le token n'est pas vide.
         $this->assertNotEmpty($token, 'Le token JWT est vide');
 
-        // 3. Préparation des données de la requête
+        // 3. Récupération du token CSRF via login méthode
+        $csrfToken = $this->loginAndGetCsrfToken($client, $user);
+
+        // 4. Préparation des données de la requête
         // Le tableau de données que nous allons envoyer dans la requête POST.
         $data = [
             'title' => 'Balade test',
@@ -53,122 +107,251 @@ class WalkControllerFunctionalTest extends WebTestCase
             'max_participants' => 10, 
         ];
 
-        // 4. Envoi de la requête HTTP
-        // Lance une requête POST vers l'URL de création de balade.
+        // 5. Envoi de la requête HTTP
+        // Lance une requête POST vers l'URL de création de balade. Avec Data et Tokens
         $client->request(
             'POST',
             '/api/walkscustom',
             [], // Paramètres de requête
             [], // Fichiers
             [
-                'HTTP_AUTHORIZATION' => 'Bearer ' . $token, // Envoie le token JWT dans l'en-tête d'autorisation standard
-                'CONTENT_TYPE' => 'application/json' // Indique que le corps de la requête est en JSON
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $token, 
+                'HTTP_X_CSRF_TOKEN' => $csrfToken, 
+                'CONTENT_TYPE' => 'application/json' 
             ],
-            json_encode($data) // Encode les données en JSON pour le corps de la requête
+            json_encode($data)
         );
 
-        // Récupère l'objet de réponse HTTP.
-            $response = $client->getResponse();
-            $responseData = json_decode($response->getContent(), true);
+        $response = $client->getResponse();
+        $responseData = json_decode($response->getContent(), true);
 
-            echo "\nStatus : " . $response->getStatusCode() . "\n";
-            echo "Contenu : " . json_encode($responseData, JSON_PRETTY_PRINT) . "\n";
+        // Si champ 'errors' dans la réponse
+        if (isset($responseData['errors'])) {
+            echo "Erreurs de validation: \n" . json_encode($responseData['errors'], JSON_PRETTY_PRINT) . "\n";
+        }
 
-            // Si vous champ 'errors' dans la réponse, affichez-le
-            if (isset($responseData['errors'])) {
-                echo "Erreurs de validation: \n" . json_encode($responseData['errors'], JSON_PRETTY_PRINT) . "\n";
-            }
-
-            $this->assertEquals(201, $response->getStatusCode(), 'Status code incorrect');
-
-            // 5. Débogage
-            echo "\nStatus : " . $response->getStatusCode() . "\n";
-            echo "Contenu : " . $response->getContent() . "\n";
-
-        // 6. Assertions (Vérifications)
-        // Vérifie que le code de statut de la réponse est bien 201 (Créé).
+        // 6.Vérif que rép 201 et corps réponse = msg succes attendu
         $this->assertEquals(201, $response->getStatusCode(), 'Status code incorrect');
-        // Vérifie que le corps de la réponse contient le message de succès attendu.
         $this->assertStringContainsString('Walk created successfully', $response->getContent(), 'Message attendu non trouvé');
     }
 
-public function testCreateWalkWithAuthenticatedUser()
-{
-    $client = static::createClient();
-    $client->catchExceptions(false);
-    $container = static::getContainer();
+    public function testCreateWalkWithAuthenticatedUser() {
 
-    // Récupère un utilisateur existant
-    $user = $container->get('doctrine')->getRepository(User::class)->findOneBy([]);
-    $this->assertNotNull($user, 'Aucun utilisateur trouvé pour le test');
+        $client = static::createClient();
+        $client->catchExceptions(false);
+        $container = static::getContainer();
 
-    // Crée un token JWT valide
-    /** @var JWTTokenManagerInterface $jwtManager */
-    $jwtManager = $container->get(JWTTokenManagerInterface::class);
-    $token = $jwtManager->create($user);
+        // Récupère un utilisateur existant
+        $user = $container->get('doctrine')->getRepository(User::class)->findOneBy([]);
+        $this->assertNotNull($user, 'Aucun utilisateur trouvé pour le test');
 
-    // Prépare les données de la requête
-    $data = [
-        'title' => 'Balade test',
-        'description' => 'Description de la balade de test',
-        'datetime' => '2025-08-16T10:00:00',
-        'photo' => 1,       // ID d'une photo existante en BDD
-        'location' => 1,    // ID d'une location existante en BDD
-        'is_custom_location' => true,
-        'max_participants' => 10,
-    ];
+        $jwtManager = $container->get(JWTTokenManagerInterface::class);
+        $token = $jwtManager->create($user);
 
-    // Envoie la requête avec JWT dans l'en-tête Authorization
-    $client->request(
-        'POST',
-        '/api/walkscustom',
-        [],
-        [],
-        [
-            'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
-            'CONTENT_TYPE' => 'application/json'
-        ],
-        json_encode($data)
-    );
+        // Récupère un token CSRF via login
+        $csrfToken = $this->loginAndGetCsrfToken($client, $user);
 
-    $response = $client->getResponse();
+        // Prépare les données de la requête
+        $data = [
+            'title' => 'Balade test',
+            'description' => 'Description de la balade de test',
+            'datetime' => '2025-08-16T10:00:00',
+            'photo' => 1,       // ID d'une photo existante en BDD
+            'location' => 1,    // ID d'une location existante en BDD
+            'is_custom_location' => true,
+            'max_participants' => 10,
+        ];
 
-    // Vérifications
-    $this->assertEquals(201, $response->getStatusCode(), 'Le token valide doit permettre la création de la balade');
-    $this->assertStringContainsString('Walk created successfully', $response->getContent());
-}
+        // Envoie la requête avec JWT et CSRF
+        $client->request(
+            'POST',
+            '/api/walkscustom',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
+                'HTTP_X_CSRF_TOKEN' => $csrfToken,
+                'CONTENT_TYPE' => 'application/json'
+            ],
+            json_encode($data)
+        );
 
-public function testCreateWalkWithUnauthenticatedUser()
-{
-    $client = static::createClient();
-    $client->catchExceptions(false);
+        $response = $client->getResponse();
 
-    // Prépare les données de la requête
-    $data = [
-        'title' => 'Balade test',
-        'description' => 'Description de la balade de test',
-        'datetime' => '2025-08-16T10:00:00',
-        'photo' => 1,
-        'location' => 1,
-        'is_custom_location' => true,
-        'max_participants' => 10,
-    ];
+        // Vérifications
+        $this->assertEquals(201, $response->getStatusCode(), 'Le token valide doit permettre la création de la balade');
+        $this->assertStringContainsString('Walk created successfully', $response->getContent());
+    }
 
-    // Envoie la requête **sans JWT**
-    $client->request(
-        'POST',
-        '/api/walkscustom',
-        [],
-        [],
-        ['CONTENT_TYPE' => 'application/json'],
-        json_encode($data)
-    );
+    public function testCreateWalkWithUnauthenticatedUser() {
 
-    $response = $client->getResponse();
+        $client = static::createClient();
+        $client->catchExceptions(false);
 
-    // Vérifications
-    $this->assertEquals(401, $response->getStatusCode(), 'Un utilisateur non authentifié doit recevoir un 401');
-$responseData = json_decode($response->getContent(), true);
-$this->assertEquals('Aucun token JWT dans la requête.', $responseData['error']);}
+        // Prépare les données de la requête
+        $data = [
+            'title' => 'Balade test',
+            'description' => 'Description de la balade de test',
+            'datetime' => '2025-08-16T10:00:00',
+            'photo' => 1,
+            'location' => 1,
+            'is_custom_location' => true,
+            'max_participants' => 10,
+        ];
+
+        // Envoie la requête sans JWT et sans CSRF 
+        $client->request(
+            'POST',
+            '/api/walkscustom',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode($data)
+        );
+
+        $response = $client->getResponse();
+
+        // Vérifications - Doit échouer sur CSRF (403) car pas de token CSRF
+        $this->assertEquals(403, $response->getStatusCode(), 'Sans CSRF, doit recevoir 403');
+        $responseData = json_decode($response->getContent(), true);
+        $this->assertEquals('CSRF token invalide ou manquant', $responseData['message']);
+    }
+
+
+    public function testCreateWalkWithJwtButNoCsrf() {
+
+        $client = static::createClient();
+        $client->catchExceptions(false);
+        $container = static::getContainer();
+
+        // Récupère un utilisateur existant
+        $user = $container->get('doctrine')->getRepository(User::class)->findOneBy([]);
+        $this->assertNotNull($user, 'Aucun utilisateur trouvé pour le test');
+
+        // Crée un token JWT valide
+        $jwtManager = $container->get(JWTTokenManagerInterface::class);
+        $token = $jwtManager->create($user);
+
+        // Prépare les données de la requête
+        $data = [
+            'title' => 'Balade test',
+            'description' => 'Description de la balade de test',
+            'datetime' => '2025-08-16T10:00:00',
+            'photo' => 1,
+            'location' => 1,
+            'is_custom_location' => true,
+            'max_participants' => 10,
+        ];
+
+        // Envoie la requête avec JWT mais **sans CSRF**
+        $client->request(
+            'POST',
+            '/api/walkscustom',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer ' . $token,
+                'CONTENT_TYPE' => 'application/json'
+            ],
+            json_encode($data)
+        );
+
+        $response = $client->getResponse();
+
+        // Vérifications - Doit échouer sur CSRF (403)
+        $this->assertEquals(403, $response->getStatusCode(), 'Avec JWT mais sans CSRF, doit recevoir 403');
+        $responseData = json_decode($response->getContent(), true);
+        $this->assertEquals('CSRF token invalide ou manquant', $responseData['message']);
+    }
+
+    //Vérifie que l'appli bloque si pas de csrf , meme si un token est présent (quil soit valide ou non : CSRF en premier : 403 (pas autorisé) et non 401 (probleme jwt))
+    public function testCreateWalkWithInvalidJwt() {
+
+        $client = static::createClient();
+        $client->catchExceptions(false);
+
+        // Prépare les données de la requête
+        $data = [
+            'title' => 'Balade test',
+            'description' => 'Description de la balade de test',
+            'datetime' => '2025-08-16T10:00:00',
+            'photo' => 1,
+            'location' => 1,
+            'is_custom_location' => true,
+            'max_participants' => 10,
+        ];
+
+        // Envoie la requête avec JWT invalide
+        $client->request(
+            'POST',
+            '/api/walkscustom',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer invalid_token',
+                'CONTENT_TYPE' => 'application/json'
+            ],
+            json_encode($data)
+        );
+
+        $response = $client->getResponse();
+
+        // Vérifications - Doit échouer sur CSRF (403) car CSRF a priorité sur JWT -- Si c'était le bearer invalide qui posait probleme : 401
+        $this->assertEquals(403, $response->getStatusCode(), 'Avec JWT invalide mais sans CSRF, doit recevoir 403');
+        $responseData = json_decode($response->getContent(), true);
+        $this->assertEquals('CSRF token invalide ou manquant', $responseData['message']);
+    }
+
+
+    public function testCreateWalkWithValidCsrfButInvalidJwt() {
+
+        $client = static::createClient();
+        $client->catchExceptions(false);
+        $container = static::getContainer();
+
+        // Récupère un utilisateur 
+        $user = $container->get('doctrine')->getRepository(User::class)->findOneBy([]);
+        $this->assertNotNull($user, 'Aucun utilisateur trouvé pour le test');
+
+        // Récupère un token CSRF via login
+        $csrfToken = $this->loginAndGetCsrfToken($client, $user);
+
+        // Prépare les données de la requête
+        $data = [
+            'title' => 'Balade test',
+            'description' => 'Description de la balade de test',
+            'datetime' => '2025-08-16T10:00:00',
+            'photo' => 1,
+            'location' => 1,
+            'is_custom_location' => true,
+            'max_participants' => 10,
+        ];
+
+        // Envoie la requête avec CSRF valide mais JWT invalide
+        $client->request(
+            'POST',
+            '/api/walkscustom',
+            [],
+            [],
+            [
+                'HTTP_AUTHORIZATION' => 'Bearer invalid_token',
+                'HTTP_X_CSRF_TOKEN' => $csrfToken,
+                'CONTENT_TYPE' => 'application/json'
+            ],
+            json_encode($data)
+        );
+
+        $response = $client->getResponse();
+
+        // Vérifications - Doit échouer sur JWT (401) car CSRF est valide
+        $this->assertEquals(401, $response->getStatusCode(), 'Avec CSRF valide mais JWT invalide, doit recevoir 401');
+        
+        // Vérifie que la réponse n'est pas vide
+        $this->assertNotEmpty($response->getContent(), 'Réponse vide');
+        
+        // Vérifie que c'est bien une erreur d'authentification
+        // Le statut 401 indique déjà une erreur d'authentification
+        $this->assertEquals(401, $response->getStatusCode(), 'Doit recevoir 401 pour JWT invalide');
+    }
 
 }
