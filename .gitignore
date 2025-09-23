@@ -5,9 +5,9 @@
 .env.prod
 .env.railway
 .env.*.local
-
-
+#
 /public/bundles/
+/public/test_smtp.php
 /var/
 /vendor/
 /var/cache/
