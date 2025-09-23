@@ -1,2 +1,5 @@
 framework:
-    lock: '%env(LOCK_DSN)%'
+    lock:
+        enabled: true
+        resources:
+            default: 'flock://%kernel.cache_dir%/lock'

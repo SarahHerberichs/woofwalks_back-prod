@@ -6,10 +6,7 @@
 .env.railway
 .env.*.local
 
-/public/test_smtp.php
 
-
-/config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
 /vendor/
@@ -20,3 +17,5 @@
 /phpunit.xml
 /.phpunit.cache/
 ###< phpunit/phpunit ###
+config/jwt/*.pem
+
