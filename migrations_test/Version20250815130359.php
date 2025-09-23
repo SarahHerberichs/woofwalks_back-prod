@@ -7,7 +7,7 @@ namespace DoctrineMigrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-/**
+/*
  * Auto-generated Migration: Please modify to your needs!
  */
 final class Version20250815130359 extends AbstractMigration
